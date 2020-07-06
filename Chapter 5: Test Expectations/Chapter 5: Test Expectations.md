@@ -3,6 +3,12 @@
 
 ![image](https://user-images.githubusercontent.com/60660894/86639957-caa65a00-c014-11ea-9fd3-0562ab045dd8.png)
 
+```swift
+func expectTextChange() -> XCTestExpectation { return keyValueObservingExpectation(
+for: sut.startButton as Any,
+keyPath: "titleLabel.text") 
+}
+```
 
 이 챕터에서는 다음을 알아보십시오.
 
