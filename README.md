@@ -1,28 +1,16 @@
 # Test-Driven-Delvelopment
 
-# RxSwift <img src = "https://github.com/ReactiveX/RxSwift/raw/master/assets/Rx_Logo_M.png" width = 60  align = right> 
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fgjbae1212%2Fhit-counter)](https://github.com/fimuxd/RxSwift)
->드디어 얘기만 듣던 `RxSwift` 스터디를 시작합니다.
-
 ## Contents
-* [Tools](https://github.com/fimuxd/RxSwift#tools)
-* [Curriculum](https://github.com/fimuxd/RxSwift#curriculum)
-* [Contributors](https://github.com/fimuxd/RxSwift#Contributors)
-* [ContactMe](https://github.com/fimuxd/RxSwift#ContactMe)
+* [Tools]()
+* [Curriculum](
+* [Contributors]()
+* [ContactMe]()
 
 ## Tools
 * 📕 RxSwift - Reactive Programming with Swift by Martin Todorov ([구매하기](https://store.raywenderlich.com/products/rxswift?_ga=2.88706715.1421367013.1516248812-515082446.1516248812))
 * 🔨 Xcode 9 or Later
 
 ## Curriculum
-
-* 총 5개의 Section과 24개의 Chapter로 구성되어 있습니다.
-
-* 일단 한 Chapter 씩 차근차근히 읽어나갈 계획입니다. (goals: min 1 chapter/day)
-
-* 각 Chapter 별로 Summary한 내용들을 기록할 계획입니다.
-
-* 개인적인 스터디 + 추후 틈틈히 챙겨볼 handbook 목적입니다.
 
 * **Section I: Getting Started with RxSwift**
   > | Ch# | Chapter Subject | Question | Note |
@@ -78,18 +66,9 @@
   > | ------------ | -------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
   > | Mar 16, 2019 | [ConSalad; 3rd bowl meet the corns](https://consalad.io) | RxSwift 1도 몰으겟읍니다에서 시작하기<p>- 미지의 영역을 대하는 자세에 관하여 | [발표자료](https://github.com/fimuxd/RxSwift/blob/master/Etc/ConSalad_RxSwift1도몰으겟읍니다_박보영_20190316.pdf) |
 
-## Contributors
-
-> Rx 무식자인 저의 눈높이에 맞춰 가르쳐주시는 멘토분들입니다. 고맙습니다. 
-
-* [studiogaram](https://github.com/studiogaram)
-* [doohochang](https://github.com/doohochang)
-* [surida](https://github.com/surida)
-* [woollim](https://github.com/woollim)
-
 ## ContactMe
-* 📱 +82 10.3316.1609
-* 📧 me@boyoung.dev
+* ??
+* ??
 
 ***
 ***Life is a game. Play it :)***
