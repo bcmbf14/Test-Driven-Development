@@ -16,7 +16,7 @@
  |2|[The TDD Cycle](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
  |3|[TDD App Setup](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
  |4|[Test Expressions](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md)  | - |
- |5|[Test Expectations](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
+ |5|[Test Expectations](https://github.com/bcmbf14/Test-Driven-Delvelopment/blob/master/Chapter%205:%20Test%20Expectations/Chapter%205:%20Test%20Expectations.md) | - |
  |6|[Dependency Injection & Mocks](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
  |7|[Introducing Dog Patch](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
  |8|[Networking client](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
