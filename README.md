@@ -12,15 +12,15 @@
 
  | Ch# | Chapter Subject | Note |
  |:---:| :--- | :--- |
- |1|[What Is TDD?](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
- |2|[The TDD Cycle](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
- |3|[TDD App Setup](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
- |4|[Test Expressions](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md)  | - |
- |5|[Test Expectations](https://github.com/bcmbf14/Test-Driven-Delvelopment/blob/master/Chapter%205:%20Test%20Expectations/Chapter%205:%20Test%20Expectations.md) | - |
- |6|[Dependency Injection & Mocks](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
- |7|[Introducing Dog Patch](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
- |8|[Networking client](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
- |9|[Using the Network Client](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
+ |01|[What Is TDD?](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
+ |02|[The TDD Cycle](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
+ |03|[TDD App Setup](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
+ |04|[Test Expressions](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md)  | - |
+ |05|[Test Expectations](https://github.com/bcmbf14/Test-Driven-Delvelopment/blob/master/Chapter%205:%20Test%20Expectations/Chapter%205:%20Test%20Expectations.md) | - |
+ |06|[Dependency Injection & Mocks](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
+ |07|[Introducing Dog Patch](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
+ |08|[Networking client](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
+ |09|[Using the Network Client](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
  |10|[Image Client](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
  |11|[Legacy Problems](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md)  | - |
  |12|[Dependency Maps](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md)  | - |
