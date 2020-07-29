@@ -28,3 +28,52 @@ tableView (_ : cellForRowAt :) 내에서 viewModels.count가 0보다 큰지 확�
 네트워킹 호출을 하려면 코드를 작성해야합니다!       
 ListingsViewController 내에서 이를 일회성 네트워킹 호출로 직접 작성할 수 있지만이 뷰컨트롤러는 빠르게 커질 것입니다.        
 더 나은 옵션은 모든 네트워킹 논리를 처리하는 별도의 네트워킹 클라이언트를 만드는 것입니다. 이것이 이장의 초점입니다!       
+
+
+
+### _Setting up the networking client_
+프로덕션 코드를 작성하기 전에 먼저 실패한 테스트를 작성해야합니다.       
+DogPatchTests / Cases / Networking 내에서 DogPatchClientTests.swift라는 새 Swift 파일을 작성하십시오. 현재 컴파일러 오류를 무시하고 내용을 다음으로 바꾸십시오.
+
+```swift
+@testable import DogPatch
+import XCTest
+class DogPatchClientTests: XCTestCase {
+  var sut: DogPatchClient!
+}
+```
+
+DogPatchClient 유형의 sut에 대한 단일 특성으로 DogPatchClientTests에 대한 새 테스트 클래스를 작성했습니다. 그러나 실제로 DogPatchClient를 작성하지 않았으므로이 코드는 컴파일되지 않습니다. 컴파일러 오류는 테스트 실패로 계산되므로 이제 프로덕션 코드를 작성할 수 있습니다.
+DogPatch / Networking 내에서 DogPatch.swift라는 새 Swift 파일을 작성하고 그 내용을 다음으로 바꾸십시오.
+
+```swift 
+import Foundation
+class DogPatchClient {
+}
+```
+
+DogPatchClient에 대한 새 클래스를 선언했으며 결과적으로 컴파일러 오류를 수정합니다. 리팩토링 할 것이 없으므로 첫 번째 테스트 방법으로 넘어갈 수 있습니다.
+DogPatchClientTests.swift를 열고 sut 선언 아래에 컴파일러 오류를 무시하고 다음을 추가하십시오.
+
+```swift
+func test_init_sets_baseURL() {
+// given
+let baseURL = URL(string: "https://example.com/api/v1/")!
+// when
+  sut = DogPatchClient(baseURL: baseURL)
+}
+```
+
+궁극적으로 이니셜 라이저로 전달되는 baseURL이 sut.baseURL과 일치하는지 테스트하고 싶습니다. 그러나 실제로이 초기화 프로그램을 만들지 않았으므로 컴파일되지 않습니다. 이 문제를 해결하려면 DogPatch를 열고 DogPatchClient에 다음을 추가하십시오.
+
+```swift
+let baseURL = URL(string: "https://example.com/")! init(baseURL: URL) {
+}
+```
+
+### _Getting started_
+### _Getting started_
+### _Getting started_
+### _Getting started_
+### _Getting started_
+### _Getting started_
