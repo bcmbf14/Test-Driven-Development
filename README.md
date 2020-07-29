@@ -27,8 +27,8 @@
  ### _Section III: TDD with Networking_ 
  | Ch# | Chapter Subject | Note |
  |:---:| :--- | :--- |
- |07|[Introducing Dog Patch](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
- |08|[Networking client](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
+ |07|[Introducing Dog Patch](https://github.com/bcmbf14/Test-Driven-Delvelopment/blob/master/Chapter%207:%20Introducing%20Dog%20Patch/Chapter%207:%20Introducing%20Dog%20Patch.md) | - |
+ |08|[Networking client]() | - |
  |09|[Using the Network Client](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
  |10|[Image Client](https://github.com/fimuxd/RxSwift/blob/master/Lectures/01_HelloRxSwift/Ch.1%20Hello%20RxSwift.md) | - |
  
