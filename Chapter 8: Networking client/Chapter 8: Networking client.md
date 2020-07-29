@@ -49,6 +49,7 @@ DogPatch / Networking 내에서 DogPatch.swift라는 새 Swift 파일을 작성�
 ```swift 
 import Foundation
 class DogPatchClient {
+
 }
 ```
 
@@ -57,17 +58,19 @@ DogPatchClientTests.swift를 열고 sut 선언 아래에 컴파일러 오류를 
 
 ```swift
 func test_init_sets_baseURL() {
-// given
-let baseURL = URL(string: "https://example.com/api/v1/")!
-// when
-  sut = DogPatchClient(baseURL: baseURL)
+    // given
+    let baseURL = URL(string: "https://example.com/api/v1/")!
+    // when
+      sut = DogPatchClient(baseURL: baseURL)
 }
 ```
 
 궁극적으로 이니셜 라이저로 전달되는 baseURL이 sut.baseURL과 일치하는지 테스트하고 싶습니다. 그러나 실제로이 초기화 프로그램을 만들지 않았으므로 컴파일되지 않습니다. 이 문제를 해결하려면 DogPatch를 열고 DogPatchClient에 다음을 추가하십시오.
 
 ```swift
-let baseURL = URL(string: "https://example.com/")! init(baseURL: URL) {
+let baseURL = URL(string: "https://example.com/")! 
+init(baseURL: URL) {
+
 }
 ```
 
