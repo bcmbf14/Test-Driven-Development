@@ -69,6 +69,7 @@ func test_init_sets_baseURL() {
 
 ```swift
 let baseURL = URL(string: "https://example.com/")! 
+
 init(baseURL: URL) {
 
 }
