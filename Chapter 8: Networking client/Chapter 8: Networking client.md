@@ -75,7 +75,107 @@ init(baseURL: URL) {
 }
 ```
 
-### _Getting started_
+여기서 baseURL을 선언하고 지금은 임의의 값으로 설정 한 다음 init (baseURL :)를 작성하십시오. 이것은 테스트를 컴파일하기에 충분하지만 실제로는 아직 아무것도 주장하지 않았습니다. DogPatchClientTests.swift를 열고 테스트 메소드 끝에 다음을 추가하십시오. 
+
+```swift
+// then
+XCTAssertEqual(sut.baseURL, baseURL)
+```
+이 주장은 sut.baseURL이 이니셜 라이저에 전달 된 인수와 같아야한다는 기대치를 설정합니다. 단위 테스트를 빌드하고 실행하면이 테스트가 예상대로 실패하는 것을 볼 수 있습니다. 이것을 전달하려면 DogPatchClient 내의 let baseURL = 행을 다음과 같이 바꾸십시오.
+
+```swift
+let baseURL: URL
+```
+그런 다음 init (baseURL :)에 다음을 추가하십시오.
+
+```swift
+self.baseURL = baseURL
+```
+이제 baseURL 인스턴스 속성이 초기화 프로그램에 의해 설정되었습니다. 테스트를 빌드하고 실행하십시오.
+이제 통과해야합니다. 리팩토링 할 것이 없으므로 계속 진행할 수 있습니다.
+또한 URLSession에 대한 속성이 필요합니다. URLSession은 네트워킹 호출에 사용됩니다. 컴파일러 오류를 무시하고 이전 테스트 직후에 다음 테스트를 추가하십시오.
+
+```swift
+func test_init_sets_session() {
+    // given
+    let baseURL = URL(string: "https://example.com/api/v1/")! let session = URLSession.shared
+    // when
+      sut = DogPatchClient(baseURL: baseURL, session: session)
+}
+
+```
+이 테스트의 목적은 초기화 프로그램을 확장하여 다른 속성을 설정하는 것입니다. 이전과 마찬가지로 세션의 속성을 선언하지 않았으므로 컴파일되지 않습니다. 이 문제를 해결하려면 DogPatchClient에서 baseURL 바로 뒤에 다음 특성을 추가하십시오.
+
+```swift
+let session: URLSession = URLSession(configuration: .default)
+```
+다음으로 init (baseURL :)의 메소드 서명을 다음으로 업데이트하십시오.
+```swift
+init(baseURL: URL, session: URLSession)
+```
+이를 통해 test_init_sets_session ()을 컴파일 할 수 있지만 test_init_sets_baseURL ()이 중단됩니다. 이 문제를 해결하려면 test_init_sets_baseURL () 내의 let baseURL 줄 바로 아래에 다음 줄을 추가하십시오.
+```swift
+let session = URLSession.shared
+```
+그런 다음 sut = 줄을 다음과 같이 업데이트하십시오.
+```swift
+sut = DogPatchClient(baseURL: baseURL, session: session)
+```
+이제 테스트가 다시 컴파일되지만 실제로 어설 션을 추가하지 않았습니다.
+test_init_sets_session (). 테스트 방법 끝에 다음을 추가하십시오.
+```swift
+// then
+XCTAssertEqual(sut.session, session)
+```
+테스트를 빌드하고 실행하면 예상대로이 테스트가 실패합니다. 전달하려면 DogPatchClient 내의 세션에 대한 특성 선언을 다음으로 변경하십시오.
+```swift
+let session: URLSession
+```
+그런 다음이 줄을 이니셜 라이저 끝에 추가하십시오.
+```swift
+self.session = session
+```
+테스트를 빌드하고 실행하면 이제 모두 통과해야합니다. 이번에는 리팩토링을해야합니다. test_init_sets_baseURL () 및 test_init_sets_session () 내의 처음 몇 줄은 정확히 동일합니다. 이 문제를 해결하려면 먼저 클래스 상단에 var sut 바로 앞에 다음 속성을 추가하십시오.
+```swift
+var baseURL: URL!
+var session: URLSession!
+```
+그런 다음 속성 바로 다음에이 두 가지 방법을 추가하십시오.
+```swift
+override func setUp() {
+    super.setUp()
+    baseURL = URL(string: "https://example.com/api/v1/")! session = URLSession.shared
+    sut = DogPatchClient(baseURL: baseURL, session: session)
+}
+override func tearDown() { 
+    baseURL = nil
+    session = nil
+    sut = nil super.tearDown()
+}
+```
+setUp 내에서 각 속성을 설정하고 tearDown 내에서 각 속성을 무효화합니다. 이를 통해 두 테스트의 중복성을 줄일 수 있습니다.
+이제 테스트 메소드 내에서 중복 로직을 제거 할 수 있습니다. test_init_sets_baseURL ()의 내용을 다음으로 바꾸십시오.
+```swift
+XCTAssertEqual(sut.baseURL, baseURL)
+```
+그런 다음 test_init_sets_session ()의 내용을 다음으로 바꾸십시오.
+```swift
+XCTAssertEqual(sut.session, session)
+```
+테스트를 빌드하고 실행하십시오. 각 테스트는 여전히 통과해야합니다.
+훌륭한 직업, 당신은 두 가지 속성을 선언했습니다! 좋아, 아마 그렇게 흥미롭지 않을 수도 있습니다. 그러나 이러한 속성은 네트워킹 호출에 중요하며 실제로 해당 코드를 작성할 수 있습니다!
+
+### _TDDing the networking call_
+
+
+
+
+
+
+```swift
+let session: URLSession = URLSession(configuration: .default)
+```
+
 ### _Getting started_
 ### _Getting started_
 ### _Getting started_
