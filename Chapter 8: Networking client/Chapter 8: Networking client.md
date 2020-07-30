@@ -279,10 +279,6 @@ let task = session.dataTask(with: url) { data, response, error in }
 task.resume() 
 return task
 ```
-
-```swift
-let session: URLSession = URLSession(configuration: .default)
-```
 테스트를 만들고 실행하십시오. 이제 테스트를 통과하십시오. 여기서는 리팩터링할 것이 없으니, 계속합시다!
 
 ### _Handling error responses_
