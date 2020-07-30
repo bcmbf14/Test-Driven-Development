@@ -167,6 +167,105 @@ XCTAssertEqual(sut.session, session)
 
 ### _TDDing the networking call_
 
+서버에서 Dog 객체 목록을 가져 오려면 GET 요청을해야합니다. 이것을 몇 가지 작은 작업으로 나눕니다.
+1. 올바른 URL을 호출합니다.
+오류 응답 처리.
+3. 성공에 대한 역 직렬화 모델.
+4. 잘못된 응답 처리.
+
+### _Calling the right URL_
+
+올바른 URL을 호출해야합니다. 불행히도 URLSession은 실제로 어떤 URL이 호출되었는지 확인할 수있는 방법이 없습니다. 가장 쉬운 방법은 URLSession을 서브 클래 싱을 통해 조롱하는 것입니다. 단위 테스트에서 실제 네트워킹 호출이 이루어지지 않도록 URLSessionDataTask도 모의합니다.
+DogPatchClientTests.swift에서 DogPatchClientTests 뒤에 다음과 같은 새로운 하위 클래스를 추가하십시오.
+
+
+```swift
+// 1
+class MockURLSession: URLSession {
+  override func dataTask(
+    with url: URL,
+    completionHandler:
+    @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
+          return MockURLSessionDataTask(
+            completionHandler: completionHandler,
+            url: url)
+} }
+// 2
+class MockURLSessionDataTask: URLSessionDataTask {
+    var completionHandler: (Data?, URLResponse?, Error?) -> Void
+    var url: URL
+    init(completionHandler:
+    @escaping (Data?, URLResponse?, Error?) -> Void,
+    url: URL) {
+    self.completionHandler = completionHandler self.url = url
+    super.init()
+}
+// 3
+  override func resume() {
+    // don't do anything
+} }
+```
+
+수행 한 작업은 다음과 같습니다.
+1. MockURLSession을 URLSession의 하위 클래스로 생성하고 dataTask (url :, completionHandler :)를 재정 의하여 MockURLSessionDataTask를 반환합니다.
+2. MockURLSessionDataTask를 URLSessionDataTask의 서브 클래스로 작성하고 url 및 completionHandler에 대한 특성을 선언하고이를 초기화 프로그램 내에 설정하십시오. 이를 통해 테스트 내에서 이러한 값을 사용할 수 있습니다.
+3. MockURLSessionDataTask가 실제 네트워크 요청을하지 않도록하려면 resume ()을 대체하여 아무 것도 수행하지 않습니다.        
+        
+실제 URLSession을 DogPatchClient로 전달하는 대신 MockURLSession 인스턴스를 전달합니다.
+분명히하기 위해 이것은 모의입니다. DogPatchClientTests에서 세션 특성을 마우스 오른쪽 단추로 클릭하고 리 팩터-> 이름 바꾸기를 선택한 후 이름을 mockSession으로 변경하십시오. 그런 다음 var mockSession 줄을 다음으로 바꾸고 컴파일러 오류는 무시하십시오.
+
+```swift
+var mockSession: MockURLSession!
+```
+이렇게하면 유형이 MockURLSession으로 변경되지만 설정 위치를 업데이트해야합니다.
+setUp () 내에서. setUp 내의 mockSession = 행을 다음과 같이 바꾸십시오.
+
+```swift
+mockSession = MockURLSession()
+```
+이제 테스트 내에서이 속성을 사용할 수 있습니다. 컴파일러 오류를 무시하고 기존 테스트 바로 다음에 다음 테스트를 추가하십시오.
+
+```swift
+func test_getDogs_callsExpectedURL() {
+    // given
+    let getDogsURL = URL(string: "dogs", relativeTo: baseURL)!
+    // when
+    let mockTask = sut.getDogs() { _, _ in } as! MockURLSessionDataTask
+}
+```
+이름에서 알 수 있듯이이 테스트는 getDogs 메소드가 특정 URL을 호출하는지 확인합니다. 이 테스트는 아직 getDogs를 선언하지 않았기 때문에 컴파일되지 않습니다. 이렇게하려면 DogPatchClient에 다음을 추가하십시오.
+
+```swift
+func getDogs(completion: @escaping ([Dog]?, Error?) -> Void) -> URLSessionDataTask {
+    return session.dataTask(with: baseURL) { _, _, _ in } 
+}
+```
+이 메소드는 session.dataTask (with : completionHandler :)를 호출하여 테스트 코드를 컴파일합니다.
+
+당신은 이제 올바른 URL이 호출되었는지 확인하기 위해 실패한 테스트 어설션이 필요하다. 테스트 방법의 끝에 다음을 추가한다.
+```swift
+// then
+XCTAssertEqual(mockTask.url, getDogsURL)
+```
+이 테스트 어설션에 실패하므로 이제 생산 코드를 작성하여 올바른 URL을 호출할 수 있다. DogPatchClient 내의 getDogs(완료:)의 내용을 다음과 같이 교체하십시오.
+```swift
+let url = URL(string: "dogs", relativeTo: baseURL)! 
+return session.dataTask(with: url) { _, _, _ in }
+```
+
+테스트를 만들고 실행하면 모두 통과해야 한다.
+URLSession은 생성된 후 네트워킹 작업을 시작하지 않는다. 대신, 당신은 필수 사항이다.
+작업을 시작하기 위해 resume를 요청한다.
+너는 이것이 완료되었는지 검증하는 테스트 방법이 필요하다. 이것을 쓰기 전에 교체하십시오.
+MockURLSessionDataTask 내에서 다음 작업을 resume()하십시오.
+
+```swift
+var calledResume = false
+override func resume() {
+  calledResume = true
+}
+```
+여기서 false로 기본 설정되는 resume에 대해 새로운 부울을 선언하고 resume() 내에서 true로 설정하십시오. 당신은 이제 이것을 사용하는 시험 방법을 쓸 수 있다. 마지막 테스트 방법 뒤에 다음을 추가하십시오.
 
 
 
@@ -176,7 +275,35 @@ XCTAssertEqual(sut.session, session)
 let session: URLSession = URLSession(configuration: .default)
 ```
 
-### _Getting started_
+```swift
+let session: URLSession = URLSession(configuration: .default)
+```
+
+```swift
+let session: URLSession = URLSession(configuration: .default)
+```
+
+
+```swift
+let session: URLSession = URLSession(configuration: .default)
+```
+
+```swift
+let session: URLSession = URLSession(configuration: .default)
+```
+
+```swift
+let session: URLSession = URLSession(configuration: .default)
+```
+
+```swift
+let session: URLSession = URLSession(configuration: .default)
+```
+
+```swift
+let session: URLSession = URLSession(configuration: .default)
+```
+
 ### _Getting started_
 ### _Getting started_
 ### _Getting started_
