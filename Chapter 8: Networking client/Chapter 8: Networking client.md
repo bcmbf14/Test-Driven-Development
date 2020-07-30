@@ -743,17 +743,120 @@ func verifyGetDogsDispatchedToMain(data: Data? = nil,
 ```swift
 verifyGetDogsDispatchedToMain(statusCode: 500)
 ```
+다음으로, test_getDogs_givedError_dispatchToResponseQueue with this:의 내용을 바꾸십시오.
+
 ```swift
-let task = session.dataTask(with: url) { data, response, error in
+// given
+let error = NSError(domain: "com.DogPatchTests", code: 42)
+// then
+verifyGetDogsDispatchedToMain(error: error)
 ```
+그것은 훨씬 읽기 쉽고 간결하다! 장치 테스트를 만들고 실행하십시오. 그러면 모두 계속 합격해야 한다.
+다음에 다루어야 할 테스트 시나리오는 유효한 응답이 응답 대기열로 전송되는지 확인하는 것이다. 마지막 테스트 뒤에 다음 테스트를 추가하십시오.
 ```swift
-let task = session.dataTask(with: url) { data, response, error in
+func test_getDogs_givenGoodResponse_dispatchesToResponseQueue() throws {
+    // given
+    let data = try Data.fromJSON(
+    fileName: "GET_Dogs_Response")
+    // then
+      verifyGetDogsDispatchedToMain(data: data)
+}
 ```
+좋아! 너는 간단한 시험지를 쓸 때 도우미 방법을 잘 활용하고 있구나. 테스트를 작성하고 실행하면 이 테스트 방법이 실패한다는 것을 알 수 있을 것이다.
+이 문제를 해결하려면 DogPatchClient의 getDogs 내에서 이 줄을 바꾸십시오.
+
 ```swift
-let task = session.dataTask(with: url) { data, response, error in
+completion(dogs, nil)
 ```
+다음 코드 사용:
+```swift
+guard let responseQueue = self.responseQueue else { completion(dogs, nil)
+return
+}
+responseQueue.async {
+  completion(dogs, nil)
+}
+```
+이 코드는 오류를 처리하는 방법과 유사하게 responseQueue가 있는지 확인하고, 있다면 개를 파견한다.
+        
+테스트를 만들고 실행하면 모두 통과해야 한다. 하지만 이제 DogPatchClient에는 다음에 제거해야 하는 중복된 논리가 있다. 이렇게 하려면 getDogs 바로 뒤에 다음 도우미 방법을 추가하십시오.
+
+```swift
+private func dispatchResult<Type>(
+    models: Type? = nil,
+    error: Error? = nil,
+    completion: @escaping (Type?, Error?) -> Void) { guard let responseQueue = responseQueue else {
+        completion(models, error)
+    return
+    }
+    responseQueue.async {
+        completion(models, error)
+      }
+}
+```
+이 방법을 모든 모델과 함께 사용할 수 있도록 하기 위해 일반 유형을 사용하고 모델, 오류 및 완료에 대한 입력을 허용한다. 입력을 막론하고 항상 응답Queue가 있는지 확인하고 완성품을 발송한다. responQueue가 없다면, 그것은 단지 입력과 함께 완료를 부를 뿐이다.
+이걸로 지금 중복 코드를 없앨 수 있어. 먼저 다음 코드를 교체하십시오.
+
+```swift
+guard let responseQueue = self.responseQueue else { completion(nil, error)
+return
+}
+responseQueue.async {
+  completion(nil, error)
+}
+```
+다음을 사용하는 경우:
+
+```swift
+self.dispatchResult(error: error, completion: completion)
+```
+다음으로 다음 라인을 교체하십시오.
+
+```swift
+guard let responseQueue = self.responseQueue else { completion(dogs, nil)
+return
+}
+responseQueue.async {
+  completion(dogs, nil)
+}
+```
+다음을 사용하는 경우:
+```swift
+self.dispatchResult(models: dogs, completion: completion)
+```
+테스트를 만들고 실행해도 모두 통과해야 한다.
+응답 대기열에 디스패치되었는지 확인해야 할 시나리오가 하나 더 있다. 잘못된 응답이 수신된 경우. 여기에 다음 테스트를 추가하십시오.
+
+```swift
+func test_getDogs_givenInvalidResponse_dispatchesToResponseQueue() throws {
+    // given
+    let data = try Data.fromJSON(
+    fileName: "GET_Dogs_MissingValuesResponse")
+    // then
+    verifyGetDogsDispatchedToMain(data: data)
+}
+```
+테스트를 작성하고 실행하면 예상대로 실패한다는 것을 알 수 있을 것이다. 이 문제를 해결하려면 DogPatchClient의 getDogs 내에서 다음 줄을 바꾸십시오.
+
+```swift
+completion(nil, error)
+```
+다음을 사용하는 경우:
 
 
+```swift
+self.dispatchResult(error: error, completion: completion)
+```
+테스트를 만들고 실행하면 모두 합격할 것이다. 리팩터링 잘했네.
+이미 리팩터 방식으로 할 수 있는 것도 없어
+그리고 또 뭐가 있을까? 방금 네트워킹 클라이언트 TDD를 완료하셨습니다! 잘했어!
 
+### _Key points_
 
-### _Getting started_
+이 장에서는 네트워킹 클라이언트를 위해 TDD를 수행하는 방법에 대해 배우셨습니다. 배운 내용을 다시 요약해 봅시다.
+• URLSession 및 URLSessionDataTask를 조롱하여 장치 테스트에서 실제 네트워킹 전화를 걸지 마십시오.       
+• GET 요청을 올바른 URL 호출, HTTP 상태 오류 처리, 유효하지 않은 응답 및 유효하지 않은 응답 처리 등 몇 가지 작은 작업으로 세분화하여 쉽게 GET 요청을 처리할 수 있도록 하십시오.     
+• URLSessionDataTask의 내부 대기열 발송 동작을 조롱하는 것에 주의하십시오. 모의에 자신만의 발송 대기열을 만들어 이 문제를 해결할 수 있다.        
+• 소비자가 네트워킹 클라이언트를 더 쉽게 사용할 수 있도록 응답 대기열로 이동        
+        
+그 귀여운 새끼들을 화면에 보여주는 데 한 걸음 더 가까워졌구나! 다음 장에서는 View 컨트롤러에서 네트워킹 클라이언트를 사용하기 위해 TDD를 수행하는 방법에 대해 알아보십시오.
