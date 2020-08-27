@@ -290,6 +290,9 @@ CashRegisterTests.defaultTestSuite.run()
 ```
 
 
+### _Adding two items_
+        
+
 
 
 
@@ -306,7 +309,6 @@ CashRegisterTests.defaultTestSuite.run()
 
     
 
-### _Getting started_
 ### _Getting started_
 ### _Getting started_
 ### _Getting started_
