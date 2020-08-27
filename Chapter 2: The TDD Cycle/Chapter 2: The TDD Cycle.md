@@ -43,19 +43,19 @@ CashRegisterTests.defaultTestSuite.run()
 2. CashRegisterTests.defaultTestSuite.run()을 작성합니다.
 > 이것은 CashRegisterTests 내에 정의 된 테스트 메소드를 실행하도록 플레이 그라운드에 지시합니다.
 3. func testInit_createsCashRegister() 메소드를 작성합니다. 
-> 실행할 테스트는 프로덕션코드 클래스 CashRegister를 테스트하기위해 CashRegisterTests라고 명명하며, XCTestCase을 상속받습니다. 또한 실행할 테스트 메소드를 작성하는데 구분을 위한 언더바를 기준으로 앞에는  " _test + 테스트할 분석법_ "  뒤에는  " _예상되는 결과_ " 를 적어줍니다. 
+> 실행할 테스트는 프로덕션코드 클래스 CashRegister를 테스트하기위해 CashRegisterTests라고 명명하며, XCTestCase을 상속받습니다. 또한 실행할 테스트 메소드를 작성하는데 구분을 위한 언더바를 기준으로 앞에는  " _test + 테스트할 분석법_ "  뒤에는  " _예상되는 결과_ " 를 적어줍니다.        
 4. XCTAssertNotNil(CashRegister())
-> 예상되는 결과값을 확인하는 메소드로 XCT로 시작하는 유형이 많다. XCTAssertEqual, XCTAssertTrue 등이 있는데 위 코드의 경우엔 매개변수로 들어가는 값이 nil이 아니다 라는 것을 확인해주는 메소드이다.     
+> 예상되는 결과값을 확인하는 메소드로 XCT로 시작하는 유형이 많다. XCTAssertEqual, XCTAssertTrue 등이 있는데 위 코드의 경우엔 매개변수로 들어가는 값이 nil이 아니다 라는 것을 확인해주는 메소드이다.            
 5. class CashRegister {}
-> 처음 CashRegister 클래스를 작성하지 않았을 때에는 테스트를 실행해도 CashRegister 클래스를 만들지 않았기 때문에 컴파일 에러가 발생합니다. 다행?스럽게도 컴파일 실패는 TDD의 빨간색 단계로 인정되기 때문에 다음인 녹색단계로 넘어가면 됩니다. 
+> 처음 CashRegister 클래스를 작성하지 않았을 때에는 테스트를 실행해도 CashRegister 클래스를 만들지 않았기 때문에 컴파일 에러가 발생합니다. 다행?스럽게도 컴파일 실패는 TDD의 빨간색 단계로 인정되기 때문에 다음인 녹색단계로 넘어가면 됩니다.        
     
 위처럼 작성을 마치고 테스트를 실행해보면 아래와 같이 콘솔창에 나오게 됩니다.
     
-> Test Suite 'CashRegisterTests' started at 2020-08-27 08:52:27.866   
-> Test Case '-[__lldb_expr_34.CashRegisterTests testInit_createsCashRegister]' started.   
-> Test Case '-[__lldb_expr_34.CashRegisterTests testInit_createsCashRegister]' passed (0.077 seconds).
-> Test Suite 'CashRegisterTests' passed at 2020-08-27 08:52:27.944.
-> Executed 1 test, with 0 failures (0 unexpected) in 0.077 (0.078) seconds  
+> Test Suite 'CashRegisterTests' started at 2020-08-27 08:52:27.866         
+> Test Case '-[__lldb_expr_34.CashRegisterTests testInit_createsCashRegister]' started.         
+> Test Case '-[__lldb_expr_34.CashRegisterTests testInit_createsCashRegister]' passed (0.077 seconds).      
+> Test Suite 'CashRegisterTests' passed at 2020-08-27 08:52:27.944.     
+> Executed 1 test, with 0 failures (0 unexpected) in 0.077 (0.078) seconds          
     
 테스트를 통과했고, 0개의 실패와 걸린 시간 등이 나오게 되죠. 이제 녹색 단계를 지난겁니다. 그렇다면 이제 다음 단계인 리팩토링을 해야겠죠? 
     
@@ -124,12 +124,12 @@ CashRegisterTests.defaultTestSuite.run()
 3. init(availableFunds : Decimal = 0) {}
 > class CashRegister에 Decimal타입의 변수 availableFunds를 만들고 init을 바꿔줍니다. 초기값을 주지 않으면 testInit_createsCashRegister에서 컴파일 에러가 발생하니 초기값도 0으로 세팅해줍니다. 
     
-> Test Case '-[__lldb_expr_53.CashRegisterTests testInit_createsCashRegister]' started.
-> Test Case '-[__lldb_expr_53.CashRegisterTests testInit_createsCashRegister]' passed (0.086 seconds).
-> Test Case '-[__lldb_expr_53.CashRegisterTests testInitAvailableFunds_setsAvailableFunds]' started.
-> Test Case '-[__lldb_expr_53.CashRegisterTests testInitAvailableFunds_setsAvailableFunds]' passed (0.004 seconds).
-> Test Suite 'CashRegisterTests' passed at 2020-08-27 11:16:36.623.
->   	 Executed 2 tests, with 0 failures (0 unexpected) in 0.089 (0.090) seconds
+> Test Case '-[__lldb_expr_53.CashRegisterTests testInit_createsCashRegister]' started.     
+> Test Case '-[__lldb_expr_53.CashRegisterTests testInit_createsCashRegister]' passed (0.086 seconds).      
+> Test Case '-[__lldb_expr_53.CashRegisterTests testInitAvailableFunds_setsAvailableFunds]' started.        
+> Test Case '-[__lldb_expr_53.CashRegisterTests testInitAvailableFunds_setsAvailableFunds]' passed (0.004 seconds).     
+> Test Suite 'CashRegisterTests' passed at 2020-08-27 11:16:36.623.     
+>   	 Executed 2 tests, with 0 failures (0 unexpected) in 0.089 (0.090) seconds      
     
 2 개의 테스트가 실행됐고, 실패는 없습니다. 애초에 테스트 메소드를 만들고 init(availableFunds:)이 없어 컴파일에러가 났을테니 레드케이스였고, 해당 클래스를 수정해주어 그린케이스가 나왔습니다. 
         
@@ -229,10 +229,10 @@ transactionTotal 변수와 addItem 메소드가 없어 컴파일 에러가 발�
 1. var availableFunds: Decimal!, var sut: CashRegister!
 > 중복이 있습니다. class CashRegisterTests 내에 추가합니다.
 2. setUp(), tearDown()
-> 테스트를 원활하게 할 수 있도록 XCTestCase에서는 메소드를 제공합니다. setUp()과 tearDown()도 그 중에 하나인데요.setUp()은 각 테스트 메소드가 실행되기 직전에 호출되고, tearDown()은 각 테스트 메소드가 완료된 직후에 호출됩니다. 이런 메소드는 중복된 로직을 처리하기 아주 좋은 곳이죠. 
-> 먼저 super.setUp()을 실행하고 테스트가 실행되기 전에 초기값을 주어야 하므로 setUp()값을 설정합니다. 그러나 tearDown()에서는 setUp()에서 설정한 값들에 대해 꼭 nil을 할당해주어야 합니다. 그리고 마지막에 super.tearDown()을 실행합니다.
-> setUp()내에서 설정한 tearDown()내의 모든 속성은 항상 nil이어야합니다. 이는 XCTest 프레임워크가 작동하는 방식 때문입니다. 테스트 대상 내에서 각 XCTestCase 하위 클래스를 인스턴스화 하고 모든 테스트 케이스가 실행될 때까지 릴리스하지 않습니다. 따라서 테스트 케이스가 많고 tearDown 내에서 해당 속성을 nil로 설정하지 않으면 필요한 것보다 더 오래 속성의 메모리를 보유하게됩니다. 충분한 테스트 케이스가 주어지면 테스트를 실행할 때 메모리 및 성능 문제가 발생할 수도 있습니다.
-> 리팩토링 후의 코드는 아래와 같습니다. 
+> 테스트를 원활하게 할 수 있도록 XCTestCase에서는 메소드를 제공합니다. setUp()과 tearDown()도 그 중에 하나인데요.setUp()은 각 테스트 메소드가 실행되기 직전에 호출되고, tearDown()은 각 테스트 메소드가 완료된 직후에 호출됩니다. 이런 메소드는 중복된 로직을 처리하기 아주 좋은 곳이죠.       
+> 먼저 super.setUp()을 실행하고 테스트가 실행되기 전에 초기값을 주어야 하므로 setUp()값을 설정합니다. 그러나 tearDown()에서는 setUp()에서 설정한 값들에 대해 꼭 nil을 할당해주어야 합니다. 그리고 마지막에 super.tearDown()을 실행합니다.     
+> setUp()내에서 설정한 tearDown()내의 모든 속성은 항상 nil이어야합니다. 이는 XCTest 프레임워크가 작동하는 방식 때문입니다. 테스트 대상 내에서 각 XCTestCase 하위 클래스를 인스턴스화 하고 모든 테스트 케이스가 실행될 때까지 릴리스하지 않습니다. 따라서 테스트 케이스가 많고 tearDown 내에서 해당 속성을 nil로 설정하지 않으면 필요한 것보다 더 오래 속성의 메모리를 보유하게됩니다. 충분한 테스트 케이스가 주어지면 테스트를 실행할 때 메모리 및 성능 문제가 발생할 수도 있습니다.     
+> 리팩토링 후의 코드는 아래와 같습니다.         
 
 ```swift 
 
