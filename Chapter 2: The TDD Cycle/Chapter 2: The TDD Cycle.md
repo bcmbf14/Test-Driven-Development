@@ -292,7 +292,97 @@ CashRegisterTests.defaultTestSuite.run()
 
 ### _Adding two items_
         
+```swift
 
+class CashRegister {
+    var availableFunds: Decimal
+    var transactionTotal: Decimal = 0
+    
+    init(availableFunds : Decimal) {
+        self.availableFunds = availableFunds
+    }
+    
+    func addItem(_ cost: Decimal){
+        transactionTotal += cost
+    }
+    
+}
+
+class CashRegisterTests: XCTestCase {
+    
+    var availableFunds:Decimal!
+    var itemCost:Decimal!
+    var sut:CashRegister!
+    
+    override func setUp() {
+        super.setUp()
+        availableFunds = 100
+        itemCost = 42
+        sut = CashRegister(availableFunds: availableFunds)
+    }
+
+    override func tearDown() {
+        availableFunds = nil
+        itemCost = nil
+        sut = nil
+        super.tearDown()
+    }
+    
+    func testInitAvailableFunds_setsAvailableFunds() {
+        XCTAssertEqual(sut.availableFunds, availableFunds)
+    }
+    
+    func testAddItem_oneItem_addsCostToTransactionTotal(){
+        // when
+        sut.addItem(itemCost)
+        // then
+        XCTAssertEqual(sut.transactionTotal, itemCost)
+    }
+    
+    func testAddItem_twoItems_addCostsToTransactionTotal(){
+        // given
+        let itemCost2 = Decimal(20)
+        let expectedTotal = itemCost + itemCost2
+        
+        // when
+        sut.addItem(itemCost)
+        sut.addItem(itemCost2)
+        
+        // then
+        XCTAssertEqual(sut.transactionTotal, expectedTotal)
+    }
+    
+}
+
+CashRegisterTests.defaultTestSuite.run()
+
+```
+        
+1. func testAddItem_twoItems_addCostsToTransactionTotal()
+> 새로운 메소드를 추가합니다. 
+2. sut.addItem(itemCost), sut.addItem(itemCost2)
+> 메소드를 완성하고 테스트를 진행하면 실패합니다. addItem을 두 번 호출하는데 값이 누적되지 않는 것이죠. 
+3. transactionTotal += cost
+> addItem 메소드 내부를 일부 수정합니다. 이제 테스트가 통과됩니다. 
+4. itemCost 리팩토링  
+> 중복값이 있습니다. 이전에 했던 것처럼 CashRegisterTests에 변수를 만들고 setUp()에서 초기값을 지정해줍니다. 이후에는 당연히 tearDown에도 nil값으로 할당해줍니다. 
+5. addItem 리팩토링?
+> 중복되는 것이 또 보입니다. sut.addItem()입니다. 이것도 중복되니 리팩토링해야 할까요?        
+> 정답은 "No"입니다. 이유는 해당 메소드는 func testInitAvailableFunds_setsAvailableFunds()에서는 쓰이지 않고 있죠. 그리고 계속 테스트를 진행하다보면 sut.addItem()를 호출할 필요가 없는 다른 메소드를 작성할 수도 있습니다. 따라서 해당 메소드를 중복 제거할 필요는 없습니다.        
+        
+### _Challenge_
+### _acceptPayment_
+        
+지금까지 CashRegister를 TDD를 이용해서 구현해봤습니다. 하지만 아직 지불을 수락하는 방법을 하지 않았으므로 마저 진행해보겠습니다. 간단함을 위해 신용카드나 IOU(i owe you, 차용증서)는 구현하지 않습니다. 
+        
+- testAcceptCashPayment_addsPaymentToAvailableFunds 메소드를 만듭니다.
+    * 지불을 수락하려면 일단 돈이 들어와야되니까 sut.addItem()을 호출해서 진행중인 거래를 특정하세요.
+    * 지불을 수락하기 위해서 sut.acceptCashPayment()를 호출합니다.
+    * 남은 금액은 transactionTotal에서 지불금액을 차감한 금액입니다. 
+        
+- 리팩토링
+    * 
+        
 
 
 
@@ -308,7 +398,3 @@ CashRegisterTests.defaultTestSuite.run()
     
 
     
-
-### _Getting started_
-### _Getting started_
-### _Getting started_
