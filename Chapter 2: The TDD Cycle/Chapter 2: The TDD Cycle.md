@@ -131,14 +131,181 @@ CashRegisterTests.defaultTestSuite.run()
 > Test Suite 'CashRegisterTests' passed at 2020-08-27 11:16:36.623.
 >   	 Executed 2 tests, with 0 failures (0 unexpected) in 0.089 (0.090) seconds
     
-2 개의 테스트가 실행됐고, 실패는 없습니다. 
+2 개의 테스트가 실행됐고, 실패는 없습니다. 애초에 테스트 메소드를 만들고 init(availableFunds:)이 없어 컴파일에러가 났을테니 레드케이스였고, 해당 클래스를 수정해주어 그린케이스가 나왔습니다. 
+        
+테스트가 통과했으니 다시 리팩토링을 해보죠~ 
+        
+일단, init()이 없어지고 availableFunds가 생겼죠? 그 말은 testInit_createsCashRegister가 필요없어졌다는 것을 뜻합니다. 그러니 일단 testInit_createsCashRegister는 제거를 해줘야겠죠. 그리고 init(availableFunds : Decimal = 0)에서 초기값을 0으로 주었습니다. 이것은 컴파일에러를 막기위한 임시방편이긴 했습니다만 지금도 정상작동하죠. 이 기본값을 그대로 둘지 아니면 없앨지는 프로젝트의 설계에 따라 달라집니다. 일단 여기서는 제거하겠습니다. 
+
+```swift
+
+class CashRegister {
+    var availableFunds: Decimal
+    
+    init(availableFunds : Decimal) {
+        self.availableFunds = availableFunds
+    }
+        
+}
+
+class CashRegisterTests: XCTestCase {
+    
+    func testInitAvailableFunds_setsAvailableFunds() {
+        // given
+        let availableFunds = Decimal(100)
+        
+        // when
+        let sut = CashRegister(availableFunds: availableFunds)
+        
+        //then
+        XCTAssertEqual(sut.availableFunds, availableFunds)
+    }
+    
+}
+
+CashRegisterTests.defaultTestSuite.run()
+
+```
+        
+그리고 다시 테스트를 실행하면 정상적으로 통과하는 것을 볼 수 있습니다. 여기서 알 수 있는 것은 뭘까요? 바로 "프로덕션 코드를 수정했음에도 테스트가 통과한다." 라는 겁니다. 이 말을 다르게 해석하면, "기존 기능을 손상시키지 않았다."는 거죠. 이제 다음 단계로 넘어가도 되겠습니다. 
+        
+### _TDDing addItem_
+        
+```swift
+
+class CashRegister {
+    var availableFunds: Decimal
+    var transactionTotal: Decimal = 0
+    
+    init(availableFunds : Decimal) {
+        self.availableFunds = availableFunds
+    }
+    
+    func addItem(_ cost: Decimal){
+        transactionTotal = cost
+    }
+        
+}
+
+class CashRegisterTests: XCTestCase {
+    
+    func testInitAvailableFunds_setsAvailableFunds() {
+        // given
+        let availableFunds = Decimal(100)
+        
+        // when
+        let sut = CashRegister(availableFunds: availableFunds)
+        
+        //then
+        XCTAssertEqual(sut.availableFunds, availableFunds)
+    }
+    
+    func testAddItem_oneItem_addsCostToTransactionTotal(){
+        // given
+        let availableFunds = Decimal(100)
+        let sut = CashRegister(availableFunds: availableFunds)
+        
+        let itemCost = Decimal(42)
+        
+        // when
+        sut.addItem(itemCost)
+        
+        //then
+        XCTAssertEqual(sut.transactionTotal, itemCost)
+    }
+    
+}
+
+CashRegisterTests.defaultTestSuite.run()
+
+```
+        
+항상 그렇듯이 실패한 케이스 먼저 작성하였습니다. 1. testAddItem_oneItem_addsCostToTransactionTotal() 메소드 먼저 생성하고, 주어진 조건을 지정했습니다. 그리고 addItem이라는 메소드를 만들어서 조건에 맞는 비용이 더해지면 거래토탈금액과 비교하는 코드입니다. 
+        
+transactionTotal 변수와 addItem 메소드가 없어 컴파일 에러가 발생하므로 class CashRegister도 수정해주었습니다. 테스트가 정상적으로 통과합니다. 
+        
+다시 리팩토링 ㄱㄱ 
+
+1. var availableFunds: Decimal!, var sut: CashRegister!
+> 중복이 있습니다. class CashRegisterTests 내에 추가합니다.
+2. setUp(), tearDown()
+> 테스트를 원활하게 할 수 있도록 XCTestCase에서는 메소드를 제공합니다. setUp()과 tearDown()도 그 중에 하나인데요.setUp()은 각 테스트 메소드가 실행되기 직전에 호출되고, tearDown()은 각 테스트 메소드가 완료된 직후에 호출됩니다. 이런 메소드는 중복된 로직을 처리하기 아주 좋은 곳이죠. 
+> 먼저 super.setUp()을 실행하고 테스트가 실행되기 전에 초기값을 주어야 하므로 setUp()값을 설정합니다. 그러나 tearDown()에서는 setUp()에서 설정한 값들에 대해 꼭 nil을 할당해주어야 합니다. 그리고 마지막에 super.tearDown()을 실행합니다.
+> setUp()내에서 설정한 tearDown()내의 모든 속성은 항상 nil이어야합니다. 이는 XCTest 프레임워크가 작동하는 방식 때문입니다. 테스트 대상 내에서 각 XCTestCase 하위 클래스를 인스턴스화 하고 모든 테스트 케이스가 실행될 때까지 릴리스하지 않습니다. 따라서 테스트 케이스가 많고 tearDown 내에서 해당 속성을 nil로 설정하지 않으면 필요한 것보다 더 오래 속성의 메모리를 보유하게됩니다. 충분한 테스트 케이스가 주어지면 테스트를 실행할 때 메모리 및 성능 문제가 발생할 수도 있습니다.
+> 리팩토링 후의 코드는 아래와 같습니다. 
+
+```swift 
+
+
+class CashRegister {
+    var availableFunds: Decimal
+    var transactionTotal: Decimal = 0
+    
+    init(availableFunds : Decimal) {
+        self.availableFunds = availableFunds
+    }
+    
+    func addItem(_ cost: Decimal){
+        transactionTotal = cost
+    }
+    
+}
+
+class CashRegisterTests: XCTestCase {
+    
+    var availableFunds:Decimal!
+    var sut:CashRegister!
+    
+    override func setUp() {
+        super.setUp()
+        availableFunds = 100
+        sut = CashRegister(availableFunds: availableFunds)
+    }
+
+    override func tearDown() {
+        availableFunds = nil
+        sut = nil
+        super.tearDown()
+    }
+    
+    func testInitAvailableFunds_setsAvailableFunds() {
+        XCTAssertEqual(sut.availableFunds, availableFunds)
+    }
+    
+    func testAddItem_oneItem_addsCostToTransactionTotal(){
+        // given
+        let itemCost = Decimal(42)
+        
+        // when
+        sut.addItem(itemCost)
+        
+        // then
+        XCTAssertEqual(sut.transactionTotal, itemCost)
+    }
+    
+}
+
+CashRegisterTests.defaultTestSuite.run()
+
+```
+
+
+
+
+
+    
+    
+  
+  
+
+        
+
 
 
     
 
     
 
-### _Getting started_
 ### _Getting started_
 ### _Getting started_
 ### _Getting started_
