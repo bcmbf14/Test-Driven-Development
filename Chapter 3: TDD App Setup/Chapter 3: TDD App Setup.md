@@ -34,7 +34,7 @@
         
 ### _Adding a test class_
 
-![image](https://user-images.githubusercontent.com/60660894/91591340-c274f600-e997-11ea-8672-5c75f198e1e7.png)
+![image](https://user-images.githubusercontent.com/60660894/91593184-aa52a600-e99a-11ea-8190-5ab8ac393abb.png)
 
 무엇을 테스트할지를 정했으니 이제 시작해봐야겠죠? 파일을 만들어줍니다. FitNessTests 그룹에 AppModelTests라는 이름으로 iOS-Unit Test Case Class를 생성해줍니다. 만약에 Xcode가 Objective-C 브리징 헤더 생성을 요구하면 Don't Create(이 프로젝트에는 Objective-C 가 없습니다.)를 클릭합니다.
         
@@ -104,7 +104,7 @@ Xcode에서 애플리케이션 타겟은 프레임 워크가 아니지만 모듈
 
 3. 테스트가 통과합니다. 간단한 테스트이므로 리팩토링은 필요없지요. 
 
-### _Writing a more interes7ng test_
+### _Writing a more interesting test_
         
 ```swift 
 import Foundation
