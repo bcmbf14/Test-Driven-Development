@@ -13,7 +13,16 @@
     
 ### _Getting started_
     
-이 장에서는 TDD Cycle을 배우기 위해 간단한 CashRegister를 만들겁니다. TDD에 집중하기 위해 플레이그라운드를 사용합니다. 고고!! 
+이 장에서는 TDD Cycle을 배우기 위해 간단한 CashRegister를 만들겁니다. TDD에 집중하기 위해 플레이그라운드를 사용합니다. 고고!!
+여기서 CashRegister는 한국말로하면 금전등록기, 이해하기 쉽게는 편의점에 있는 POS기를 말합니다. POS기의 원리?를 모르고 코드를 해석하면 개인적으로는 좀 헷갈렸어요. 다행히도 제가 편의점, 식당등의 아르바이트를 좀 해봐서 그런지 겨우겨우 이해했습니다. 
+
+### _현금등록기(POS기)_
+![image](https://user-images.githubusercontent.com/60660894/91504217-71b5bc80-e907-11ea-8aad-bcc09f1eb772.png)
+> POS기에는 시재라고 하는 이용가능한금액이 있습니다. 손님이 현금을 내면 잔돈을 거슬러줘야하므로 존재하는 돈입니다.      
+> 시재가 100원이 있을때, 손님이 물건을 가져가고 현금을 40원 줬다면 시재는 140원으로 증가합니다. 당연하게도 현금을 받았으니까요.       
+> 그리고 현금등록기에는 받은 현금을 합산할 수 있는 키(버튼)이 존재합니다. 50원/100원/1,000원/10,000원/50,000원과 같은 식으로요. 천원버튼을 두번 누르면 화면에 받은 현금 2천원이라는 표시가 뜨고, 바코더?를 이용하거나 다른 버튼으로 물건값 얼마를 입력하면 잔돈 혹은 거슬러줘야되는 돈이 화면에 나타납니다.     
+> 이 프로젝트에서는 availableFunds가 시재이고, transactionTotal가 거스름돈 혹은 잔돈, payment가 물건 값 이라고 이해하면 편합니다.        
+
     
 ### _Red: Write a failing test_
     
@@ -373,28 +382,128 @@ CashRegisterTests.defaultTestSuite.run()
 ### _Challenge_
 ### _acceptPayment_
         
-지금까지 CashRegister를 TDD를 이용해서 구현해봤습니다. 하지만 아직 지불을 수락하는 방법을 하지 않았으므로 마저 진행해보겠습니다. 간단함을 위해 신용카드나 IOU(i owe you, 차용증서)는 구현하지 않습니다. 
+지금까지 CashRegister를 TDD를 이용해서 구현해봤습니다. 하지만 아직 지불을 수락하는 방법을 하지 않았으므로 마저 진행해보겠습니다. 간단함을 위해 신용카드나 IOU(i owe you, 차용증서)는 구현하지 않습니다. 처음에 코드 내용이 잘 이해가지 않을 수 있어요. 그러면 맨 위에 현금등록기(POS기)에 대해서 다시 한 번 읽어보고 오세요~ 
         
-- testAcceptCashPayment_addsPaymentToAvailableFunds 메소드를 만듭니다.
-    * 지불을 수락하려면 일단 돈이 들어와야되니까 sut.addItem()을 호출해서 진행중인 거래를 특정하세요.
-    * 지불을 수락하기 위해서 sut.acceptCashPayment()를 호출합니다.
-    * 남은 금액은 transactionTotal에서 지불금액을 차감한 금액입니다. 
+```swift
+
+class CashRegister {
+    var availableFunds: Decimal
+    var transactionTotal: Decimal = 0
+    
+    init(availableFunds : Decimal) {
+        self.availableFunds = availableFunds
+    }
+    
+    func addItem(_ cost: Decimal){
+        transactionTotal += cost
+    }
+    
+    func acceptCashPayment(_ cash: Decimal) {
+      transactionTotal -= cash
+      availableFunds += cash
+    }
+    
+}
+
+class CashRegisterTests: XCTestCase {
+    
+    var availableFunds:Decimal!
+    var itemCost:Decimal!
+    var payment: Decimal!
+    
+    var sut:CashRegister!
+    
+    override func setUp() {
+        super.setUp()
+        availableFunds = 100
+        itemCost = 42
+        payment = 40
+        sut = CashRegister(availableFunds: availableFunds)
+    }
+
+    override func tearDown() {
+        availableFunds = nil
+        itemCost = nil
+        payment = nil
+        sut = nil
+        super.tearDown()
+    }
+    
+    func testInitAvailableFunds_setsAvailableFunds() {
+        XCTAssertEqual(sut.availableFunds, availableFunds)
+    }
+    
+    func testAddItem_oneItem_addsCostToTransactionTotal(){
+        // when
+        sut.addItem(itemCost)
+        // then
+        XCTAssertEqual(sut.transactionTotal, itemCost)
+    }
+    
+    func testAddItem_twoItems_addCostsToTransactionTotal(){
+        // given
+        let itemCost2 = Decimal(20)
+        let expectedTotal = itemCost + itemCost2
         
-- 리팩토링
-    * 
+        // when
+        sut.addItem(itemCost)
+        sut.addItem(itemCost2)
         
-
-
-
+        // then
+        XCTAssertEqual(sut.transactionTotal, expectedTotal)
+    }
+    
+    func testAcceptCashPayment_subtractsPaymentFromTransactionTotal() {
+      // given
+      givenTransactionInProgress()
+      let expected = sut.transactionTotal - payment
+        
+      // when
+      sut.acceptCashPayment(payment)
+      
+      // then
+      XCTAssertEqual(sut.transactionTotal, expected)
+    }
     
     
-  
-  
+    func testAcceptCashPayment_addsPaymentToAvailableFunds() {
+      // given
+      givenTransactionInProgress()
+      let expected = sut.availableFunds + payment
+      
+      // when
+      sut.acceptCashPayment(payment)
+      
+      // then
+      XCTAssertEqual(sut.availableFunds, expected)
+    }
 
+    func givenTransactionInProgress() {
+      sut.addItem(50)
+      sut.addItem(100)
+    }
+    
+}
+
+CashRegisterTests.defaultTestSuite.run()
+
+```
+
+1. testAcceptCashPayment_subtractsPaymentFromTransactionTotal(), testAcceptCashPayment_addsPaymentToAvailableFunds()
+> 이름만 보고는 해석이 좀 애매하죠? 풀어보면 앞에는 수납테스트_총거래액으로부터의 차감지불액()? 뒤에는 수납테스트_이용가능금액에지불금액더하기()?로 볼 수 있겠네요. 쉽게 이해하려면 전자는 거스름돈(transactionTotal)을 계산하는 테스트, 후자는 시재 혹은 POS기내의 이용가능한 현금(availableFunds)를 계산하는 테스트라고 이해하면 되겠습니다.        
+> givenTransactionInProgress() 메소드를 보면 내부에 addItem의 매개변수로 50과 100을 두번 실행합니다.            
+> 이게 무슨 상황이냐면, 고객에게 현금을 받은거에요. 얼마를? 150원을요. 그래서 나는 지금 POS기에 받은 금액을 표시해야하니까 50원버튼과 100원버튼을 각각 눌러준거에요. 그러면 POS기에는 두 개의 합산금액이 150원이 표시되겠죠.      
+2. acceptCashPayment(_ cash: Decimal)
+> 수납을 위한 acceptCashPayment 메소드를 지정해줍니다. 매개변수로는 물건값(payment)이 들어가네요. 여기서 어떻게 해야 할까요? 저희가 계산해야 할 것은 transactionTotal과 availableFunds입니다. 150원을 받았으니 transactionTotal은 150이고, availableFunds은 setUp에서 지정해준 100이겠네요. 그리고 우리는 이제 팔아야 될 물건을 바코더로 찍을겁니다. 이 물건값은 payment죠. 그러면 거스름돈(transactionTotal)에서 payment는 차감해주면 되겠고, 현재 100이 있었는데 물건값 40을 받을거니까 시재에 40을 더해주면 되겠네요.       
+> 결론적으로 시재는 140이 되고, 거스름돈은 110이 됩니다.        
         
-
-
-
-    
-
-    
+### _Key points_
+        
+이 장에서 TDD주기에 대해 배웠습니다. 여기에는 4 단계가 있습니다.     
+        
+- Red : 실패한 테스트를 작성합니다.     
+- Green : 테스트를 통과했습니다.      
+- ReFactoring : 앱과 테스트 코드를 모두 정리합니다.        
+- Repeat : 모든 기능이 구현 될 때까지 다시 수행합니다.        
+        
+        
