@@ -407,10 +407,10 @@ API에 대한 변경 사항을 반영하도록 업데이트 된 최종 종속성
 
 1. LoginViewController는 여전히 MyBiz 모듈의 Main.storyboard 에 의존 하므로 재사용이 더 어렵습니다. 프레임 워크 내에있는 자체 스토리 보드로 가져옵니다.    
     
-2. 로그인 테스트를 추가하고 개선합니다.   
-    - LoginViewControllerTests 특성화 테스트를 LoginTests 대상으로 가져옵니다.
-    - 모의 LoginAPI를 만들어 API 및 로컬 서버를 거치지 않아도되도록 이러한 테스트 사례를 단위 테스트로 용도를 변경합니다.
-    - 사용자 상태 흐름을 테스트하는 AppDelegateTests 만들기.
+2. 로그인 테스트를 추가하고 개선합니다.
+  - LoginViewControllerTests 특성화 테스트를 LoginTests 대상으로 가져옵니다.
+  - 모의 LoginAPI를 만들어 API 및 로컬 서버를 거치지 않아도되도록 이러한 테스트 사례를 단위 테스트로 용도를 변경합니다.
+  - 사용자 상태 흐름을 테스트하는 AppDelegateTests 만들기.
     
 3. Logger 문제를 UIHelpers로 가져오고 Styler와 같은 구성을 전달하거나 logging 프로토콜을 만들고 프레임 워크에 연결하여 Logger 문제를 해결합니다.   
 
