@@ -215,15 +215,15 @@ api.login(username: username, password: password) { result in
 ```
 코드가 훨씬 개선되었습니다. 종속성 맵으로 보면 아래와 같습니다.
 ![image](https://user-images.githubusercontent.com/60660894/92010902-4f97c080-ed85-11ea-982e-1793913835c2.png)
+    
+### _Don’t forget the tests_
+    
 
 
 
 
 
 
-
-
-### _Getting started_
 ### _Getting started_
 ### _Getting started_
 ### _Getting started_
