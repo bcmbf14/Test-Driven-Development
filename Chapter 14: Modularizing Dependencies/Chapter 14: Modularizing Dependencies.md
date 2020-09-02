@@ -360,7 +360,6 @@ completion: @escaping (Result<String, Error>) -> ()) {
 }
   
 ```
-
 3. APITests.swift에서 func testAPI_whenLogin_generatesANotification()에서 sut.login(username: "test", password: "test") 뒤에 { _ in } 를 붙여줍니다.    
 
 4. LoginViewControllerTests.swift에서 import MyBiz아래 @testable을 추가합니다.    
@@ -409,9 +408,9 @@ API에 대한 변경 사항을 반영하도록 업데이트 된 최종 종속성
 1. LoginViewController는 여전히 MyBiz 모듈의 Main.storyboard 에 의존 하므로 재사용이 더 어렵습니다. 프레임 워크 내에있는 자체 스토리 보드로 가져옵니다.    
     
 2. 로그인 테스트를 추가하고 개선합니다.   
-  - LoginViewControllerTests 특성화 테스트를 LoginTests 대상으로 가져옵니다.
-  - 모의 LoginAPI를 만들어 API 및 로컬 서버를 거치지 않아도되도록 이러한 테스트 사례를 단위 테스트로 용도를 변경합니다.
-  - 사용자 상태 흐름을 테스트하는 AppDelegateTests 만들기.
+    - LoginViewControllerTests 특성화 테스트를 LoginTests 대상으로 가져옵니다.
+    - 모의 LoginAPI를 만들어 API 및 로컬 서버를 거치지 않아도되도록 이러한 테스트 사례를 단위 테스트로 용도를 변경합니다.
+    - 사용자 상태 흐름을 테스트하는 AppDelegateTests 만들기.
     
 3. Logger 문제를 UIHelpers로 가져오고 Styler와 같은 구성을 전달하거나 logging 프로토콜을 만들고 프레임 워크에 연결하여 Logger 문제를 해결합니다.   
 
@@ -425,7 +424,7 @@ API에 대한 변경 사항을 반영하도록 업데이트 된 최종 종속성
 
 추가적인 개선을 위한 몇 가지가 있습니다. 전용 사용자 상태 관리자를 사용하고 AppDelegate에 의존하는 대신 Router 또는 FlowController와 같은 패턴을 사용하여 오류 및 로그인 화면 표시를 처리함으로써 훨씬 더 개선 할 수 있습니다.
 
-다른 훌륭한 리소스로는 원본 디자인 패턴 책 (Gamma et al)이 있습니다.이 책은 매우 객체 지향적이지만 점진적으로 종속성을 분리하고 기능을 분리하는 데 유용한 패턴을 많이 포함하고 있습니다. 더 즉시 유용한 것은 https://store.raywenderlich.com/의 아키텍처 책입니다.
+다른 훌륭한 리소스로는 원본 디자인 패턴 책 (Gamma et al)이 있습니다.이 책은 매우 객체 지향적이지만 점진적으로 종속성을 분리하고 기능을 분리하는 데 유용한 패턴을 많이 포함하고 있습니다. 더 즉시 유용한 것은 https://store.raywenderlich.com/ 아키텍처 책입니다.
 
 - 튜토리얼 별 디자인 패턴
 - Combine : Swift 또는 RxSwift를 사용한 비동기 프로그래밍 : Swift를 이용한 반응형 프로그래밍
