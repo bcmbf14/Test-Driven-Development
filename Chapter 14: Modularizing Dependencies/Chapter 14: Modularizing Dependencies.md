@@ -338,7 +338,6 @@ Main.storyboard를 열고 Login View Controller Scene을 선택해서 Identity i
 ### _Fixing the tests_
     
 1. MockAPI.swift에서 func login override를 아래와 같이 바꿔줍니다. 기존 코드에 컴플리션 핸들러를 추가합니다.     
-
 ```swift
 
 override func login(username: String, password: String,
@@ -352,7 +351,6 @@ completion: @escaping (Result<String, Error>) -> ()) {
 ```
 
 2. SpyAPI.swift에서 func login override를 아래와 같이 바꿔줍니다.    
-
 ```swift
 
 override func login(username: String, password: String, 
@@ -389,13 +387,14 @@ override func setUp() { super.setUp()
   
 ```
 
-이제 모든 테스트가 리팩토링을 아무 것도 꺠뜨리지 않고 다시 한 번 통과됩니다.    
+이제 모든 테스트가 리팩토링을 아무 것도 깨뜨리지 않고 다시 한 번 통과됩니다.    
 
 
 
 ### _Wrap up_
       
-지금까지 한 작업을 정리합니다.   
+지금까지 한 작업을 정리합니다.     
+우리는 로그인 기능을 자체 프레임 워크로 깔끔하게 가져 오기위한 최소한의 작업을 진행했습니다.    
 로그인은 이제 자체 프레임 워크에 있으며 다른 프로젝트에서 재사용 할 준비가되었습니다.    
 Login 프레임 워크와 UIHelpers 프레임 워크를 모두 배포해야 하지만 프레임 워크에 자체 종속성이있는 것은 정상입니다.   
 API에 대한 변경 사항을 반영하도록 업데이트 된 최종 종속성 맵을 살펴보십시오.       
@@ -403,6 +402,33 @@ API에 대한 변경 사항을 반영하도록 업데이트 된 최종 종속성
     
 ![image](https://user-images.githubusercontent.com/60660894/92020278-dbfcb000-ed92-11ea-8e2b-a6b48b708b5c.png)
     
+### _Challenges_
+
+아직도 개선의 여지가 많습니다. 다음 중 하나를 완료하여 프로젝트를 수정하십시오.   
+
+1. LoginViewController는 여전히 MyBiz 모듈의 Main.storyboard 에 의존 하므로 재사용이 더 어렵습니다. 프레임 워크 내에있는 자체 스토리 보드로 가져옵니다.    
     
+2. 로그인 테스트를 추가하고 개선합니다.   
+  - LoginViewControllerTests 특성화 테스트를 LoginTests 대상으로 가져옵니다.
+  - 모의 LoginAPI를 만들어 API 및 로컬 서버를 거치지 않아도되도록 이러한 테스트 사례를 단위 테스트로 용도를 변경합니다.
+  - 사용자 상태 흐름을 테스트하는 AppDelegateTests 만들기.
+    
+3. Logger 문제를 UIHelpers로 가져오고 Styler와 같은 구성을 전달하거나 logging 프로토콜을 만들고 프레임 워크에 연결하여 Logger 문제를 해결합니다.   
+
+### _Key points_
+    
+- 프레임 워크는 코드를 구성하고 종속성 분리를 깔끔하게 유지하는 데 도움이됩니다.    
+- 프로토콜을 사용하여 순환 종속성을 생성하지 않고 호출자로부터 구현을 제공합니다.    
+- 대규모 리팩터링 전후에 테스트를 작성합니다.    
+
+### _Where to go from here?_
+
+추가적인 개선을 위한 몇 가지가 있습니다. 전용 사용자 상태 관리자를 사용하고 AppDelegate에 의존하는 대신 Router 또는 FlowController와 같은 패턴을 사용하여 오류 및 로그인 화면 표시를 처리함으로써 훨씬 더 개선 할 수 있습니다.
+
+다른 훌륭한 리소스로는 원본 디자인 패턴 책 (Gamma et al)이 있습니다.이 책은 매우 객체 지향적이지만 점진적으로 종속성을 분리하고 기능을 분리하는 데 유용한 패턴을 많이 포함하고 있습니다. 더 즉시 유용한 것은 https://store.raywenderlich.com/의 아키텍처 책입니다.
+
+- 튜토리얼 별 디자인 패턴
+- Combine : Swift 또는 RxSwift를 사용한 비동기 프로그래밍 : Swift를 이용한 반응형 프로그래밍
+- 고급 iOS 앱 아키텍처
     
     
