@@ -186,7 +186,7 @@ public init(title: String, action: @escaping () -> ()) {
     
 이제 다른 모듈이 사용할 수 있도록 이러한 유형과 함수가 노출됩니다. 이 프로젝트의 경우는 해당 모듈은 Login과 MyBiz입니다.
     
-### _Further isola7ng LoginViewController_
+### _Further isolating LoginViewController_
     
 아직도 많은 컴파일러 오류가 존재합니다.        
 LoginViewController 를 정리하려면 많은 것들을 수정해야합니다. API 클래스가 너무 광범위하고 추가 메서드가 많은 이상한 델리게이트에 의존하고 있기 때문이죠.     
@@ -322,21 +322,86 @@ import UIHelpers
 ```
 7. 마지막으로 클래스 정의에서 LoginAPI 프로토콜을 준수합니다.   
 8. 다음으로 APIDelegate 프로토콜에서 func loginFailed(error: Error), func loginSucceeded(userId: String)을 제거합니다.    
-9. 아래 APIDelegate extension 에서도 func loginFailed(error: Error), func loginSucceeded(userId: String)를 제겋바니다.   
+9. 아래 APIDelegate extension 에서도 func loginFailed(error: Error), func loginSucceeded(userId: String)를 제거합니다.   
 - AnnouncementsTableViewController.swift 
 - CalendarModel.swift
 - OrgTableViewController.swift
 - PurchasesTableViewController.swift
 - CreatePurachaseOrderTableViewController.swift 
 - SettingsTableViewController.swift
-
-
-
-### _Getting started_
-### _Getting started_
-### _Getting started_
-
     
+### _Fixing the storyboard_
+
+Main.storyboard를 열고 Login View Controller Scene을 선택해서 Identity inspector의 Module을 Login으로 변경합니다.    
+![image](https://user-images.githubusercontent.com/60660894/92018812-9b9c3280-ed90-11ea-87fb-66f0868789db.png)
+
+### _Fixing the tests_
+    
+1. MockAPI.swift에서 func login override를 아래와 같이 바꿔줍니다. 기존 코드에 컴플리션 핸들러를 추가합니다.     
+
+```swift
+
+override func login(username: String, password: String,
+completion: @escaping (Result<String, Error>) -> ()) {
+
+  let token = Token(token: username, userID: UUID())
+  handleToken(token: token, completion: completion)
+
+}
+  
+```
+
+2. SpyAPI.swift에서 func login override를 아래와 같이 바꿔줍니다.    
+
+```swift
+
+override func login(username: String, password: String, 
+completion: @escaping (Result<String, Error>) -> ()) {
+  loginCalled = true
+  super.login(username: username, password: password, completion: completion)
+}
+  
+```
+
+3. APITests.swift에서 func testAPI_whenLogin_generatesANotification()에서 sut.login(username: "test", password: "test") 뒤에 { _ in } 를 붙여줍니다.    
+
+4. LoginViewControllerTests.swift에서 import MyBiz아래 @testable을 추가합니다.    
+```swift
+
+@testable import Login
+@testable import UIHelpers
+
+```
+
+5. ErrorViewControllerTests.swift에서 import MyBiz아래 @testable을 추가하고 setUp()을 바꿔줍니다.    
+```swift
+
+@testable import UIHelpers
+
+```
+
+```swift
+
+override func setUp() { super.setUp()
+  sut = UIStoryboard(name: "UIHelpers", bundle: Bundle(for:
+    ErrorViewController.self)).instantiateViewController(withIdentifier: "error") as? ErrorViewController
+}
+  
+```
+
+이제 모든 테스트가 리팩토링을 아무 것도 꺠뜨리지 않고 다시 한 번 통과됩니다.    
+
+
+
+### _Wrap up_
+      
+지금까지 한 작업을 정리합니다.   
+로그인은 이제 자체 프레임 워크에 있으며 다른 프로젝트에서 재사용 할 준비가되었습니다.    
+Login 프레임 워크와 UIHelpers 프레임 워크를 모두 배포해야 하지만 프레임 워크에 자체 종속성이있는 것은 정상입니다.   
+API에 대한 변경 사항을 반영하도록 업데이트 된 최종 종속성 맵을 살펴보십시오.       
+훌륭하고 깔끔하며 계층적인 다이어그램입니다. 주기가 없으며 관련없는 데이터 유형이나 관련없는 기능을 가져 오지 않았습니다.    
+    
+![image](https://user-images.githubusercontent.com/60660894/92020278-dbfcb000-ed92-11ea-8e2b-a6b48b708b5c.png)
     
     
     
