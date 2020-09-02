@@ -218,13 +218,120 @@ api.login(username: username, password: password) { result in
     
 ### _Don’t forget the tests_
     
+다음으로, 방금 변경 한 사항을 확인하기 위해 프로토콜에 테스트를 추가 할 수 있습니다.
+
+1. 먼저 ValidatorsTests.swift를 잡고 LoginTests 타겟으로 드래그합니다. ValidatorsTests.swift을 클릭하고 우측 File Inspector에서 Target Membership이 LoginTests로 지정되어 있는지 확인합니다.    
+2. 다음으로 이 파일이 필요하지 않으므로 LoginTests.swift를 삭제합니다.    
+3. 마지막으로 ValidatorsTests.swift를 열고 다음을 교체합니다.   
+```swift
+
+@testable import MyBiz 
+
+with the following:
+
+@testable import Login
+
+```
+4. 로그인 대상을 빌드하고 실행하고 모든 것이 의도 한대로 작동하는지 테스트합니다. 이전의 UIHelpersTests처럼 Host Application이 없는지 확인하고 타겟이 MyBiz를 빌드하지 않도록합니다.   
+
+### _Fixing MyBiz_
+    
+이제 이전에 사용 가능한 코드가 포함 된 두 개의 새로운 프레임 워크가 있으므로 사용 프로젝트의 종속성을 수정해야합니다. 
+    
+1. 아래 파일에 다음을 import합니다. 
+```swift
+
+import UIHelpers
+
+```
+
+- DateSelectingViewController.swift   
+- AnnouncementsTableViewController.swift    
+- CreatePurachaseOrderTableViewController.swift         
+- PurchasesTableViewController.swift    
+- OrgTableViewController.swift    
+- AddToOrderTableViewController.swift     
+- Configuration.swift   
+
+2. Configuration.swift에서 let ui: UI -> let ui: UIConfiguration를 바꿔줍니다.
+3. AppDelegate.swift에서 import Login를 합니다. 
+4. 오류를 수정하기위해 LoginViewController의 접근제어를 public로 바꿔줍니다.     
+5. API를 열고 import Foundation아래에 import Login를 합니다.    
+6. API.swift에서 func login() 및 func handleToken()을 아래와 같이 바꿉니다. 이 코드는 delegate 를 호출하는 대신 이제는 전달 된 완료 블록을 대신 호출한다는 점을 제외하면 이전과 거의 동일 합니다.
+
+```swift 
+
+  func login(
+    username: String,
+    password: String,
+    completion: @escaping (Result<String, Error>) -> ()) {
+    
+    let eventsEndpoint = server + "api/users/login"
+    let eventsURL = URL(string: eventsEndpoint)!
+    var urlRequest = URLRequest(url: eventsURL)
+    urlRequest.httpMethod = "POST"
+    let data = "\(username):\(password)".data(using: .utf8)!
+    let basic = "Basic \(data.base64EncodedString())"
+    urlRequest.addValue(basic, forHTTPHeaderField: "Authorization")
+    
+    let task = session.dataTask(with: urlRequest)
+    { data, _, error in
+      guard let data = data else {
+        if error != nil {
+          DispatchQueue.main.async {
+            completion(.failure(error!))
+          }
+        }
+        return
+      }
+      let decoder: JSONDecoder = JSONDecoder()
+      if let token = try? decoder.decode(Token.self,
+                                         from: data) {
+        self.handleToken(token: token, completion: completion)
+      } else {
+        do {
+          let error = try decoder.decode(APIError.self, from: data)
+          
+          DispatchQueue.main.async {
+            completion(.failure(error))
+          }
+        } catch {
+          DispatchQueue.main.async {
+            completion(.failure(error)) }
+        }
+      }
+    }
+    task.resume()
+  }
+  
+  
+  func handleToken(token: Token, completion: @escaping
+    (Result<String, Error>) -> ()) {
+    self.token = token
+    Logger.logDebug("user \(token.userID)")
+    DispatchQueue.main.async {
+      let note = Notification(name: UserLoggedInNotification,
+                              object: self,
+                              userInfo:[UserNotificationKey.userId:
+                                token.userID.uuidString])
+      NotificationCenter.default.post(note)
+      completion(.success(token.userID.uuidString))
+    }
+  }
+  
+```
+7. 마지막으로 클래스 정의에서 LoginAPI 프로토콜을 준수합니다.   
+8. 다음으로 APIDelegate 프로토콜에서 func loginFailed(error: Error), func loginSucceeded(userId: String)을 제거합니다.    
+9. 아래 APIDelegate extension 에서도 func loginFailed(error: Error), func loginSucceeded(userId: String)를 제겋바니다.   
+- AnnouncementsTableViewController.swift 
+- CalendarModel.swift
+- OrgTableViewController.swift
+- PurchasesTableViewController.swift
+- CreatePurachaseOrderTableViewController.swift 
+- SettingsTableViewController.swift
 
 
 
-
-
-
-### _Getting started_
 ### _Getting started_
 ### _Getting started_
 ### _Getting started_
