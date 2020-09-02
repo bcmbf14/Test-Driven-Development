@@ -60,6 +60,8 @@ Styler 는 AppDelegate 의 Configuration에 의존합니다. 이 도우미 프�
     
 UI 스타일링 외에도 비즈니스 로직 및 서버 설정과 같은 항목이 포함되어 있기 때문에 구성 자체도 문제입니다. 앞으로 나아가는 가장 쉬운 방법은 바닥에서 시작하여 위로 올라가는 것입니다.
 
+1. UIHelpers에 UIConfiguration.swift라는 새 파일을 만듭니다. 
+2. Configuration.swift 에서 Configuration -> UIConfiguration으로 rename하고 해당 구조체를 UIConfiguration.swift으로 이동합니다.
 
 ```swift
 
@@ -88,8 +90,7 @@ struct UIConfiguration: Codable {
 }
 
 ```
-1. UIHelpers에 UIConfiguration.swift라는 새 파일을 만듭니다. 
-2. Configuration.swift 에서 Configuration -> UIConfiguration으로 rename하고 해당 구조체를 UIConfiguration.swift으로 이동합니다.
+
 3. Styler.swift에서 let configuration...를 var configuration: UIConfiguration?로 바꿔줍니다. 
 
 ```swift
@@ -113,12 +114,25 @@ button.layer.borderWidth = CGFloat(configuration?.button.borderWidth ?? 0)
 //      Logger.logFatal("no action defined.")
 
 ```
+    
+### _Modularizing a storyboard_
+    
+앱에서 스토리 보드를 통해 ErrorViewController를 만듭니다. 현재는 메인 스토리 보드를 통해 UIViewController + Alert.swift 에서 명시적으로 수행됩니다. 이 스토리 보드는 앱 모듈에 있으므로이 프레임 워크에서 사용할 수 없습니다.   
+    
+이 문제를 해결하려면 다음 단계에 따라 뷰 컨트롤러를 UIHelpers 프레임워크 의 새 스토리 보드로 이동 합니다.
+    
+1. Main.storyboard를 열고 Error View Controller Scene을 선택합니다.
+2. 이제 Xcode 메뉴 도구의 에디터 -> 스토리보드 리팩토링을 선택합니다.
+![image](https://user-images.githubusercontent.com/60660894/91999369-41db3e80-ed77-11ea-852e-276df0247ce4.png)
+3. 이름을 UIHelpers.storyboard로 지정합니다.
+4. 그룹을 UIHelpers로 변경합니다.
+5. 현재 타겟인 MyBiz의 체크박스를 해제하고 UIHelpers을 체크합니다.
+![image](https://user-images.githubusercontent.com/60660894/91999527-764efa80-ed77-11ea-8d1d-d3597cd7782f.png)
+6. 저장을 클릭 합니다.
+7. Main.storyboard에서 참조된 ErrorViewController 레퍼런스를 삭제합니다.
 
 
 
-
-
-### _Getting started_
 ### _Getting started_
 ### _Getting started_
 ### _Getting started_
