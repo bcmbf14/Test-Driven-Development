@@ -60,9 +60,6 @@ Styler 는 AppDelegate 의 Configuration에 의존합니다. 이 도우미 프�
     
 UI 스타일링 외에도 비즈니스 로직 및 서버 설정과 같은 항목이 포함되어 있기 때문에 구성 자체도 문제입니다. 앞으로 나아가는 가장 쉬운 방법은 바닥에서 시작하여 위로 올라가는 것입니다.
 
-1. UIHelpers에 UIConfiguration.swift라는 새 파일을 만듭니다. 
-2. Configuration.swift 에서 Configuration -> UIConfiguration으로 rename하고 해당 구조체를 UIConfiguration.swift으로 이동합니다.
-
 ```swift
 
 struct Configuration: Codable {
@@ -91,14 +88,15 @@ struct UIConfiguration: Codable {
 
 ```
 
-3. Styler.swift에서 let configuration...를 var configuration: UIConfiguration?로 바꿔줍니다. 
+1. UIHelpers에 UIConfiguration.swift라는 새 파일을 만듭니다. 
+2. Configuration.swift 에서 Configuration -> UIConfiguration으로 rename하고 해당 구조체를 UIConfiguration.swift으로 이동합니다.
 
 ```swift
 
 var configuration: UIConfiguration?
 
 ```
-4. 이어서 옵셔널로 발생한 문제를 바인딩 해줍니다.
+3. Styler.swift에서 let configuration...를 var configuration: UIConfiguration?로 바꿔줍니다. 
 
 ```swift
 
@@ -106,35 +104,66 @@ button.layer.cornerRadius = CGFloat(configuration?.button.cornerRadius ?? 0)
 button.layer.borderWidth = CGFloat(configuration?.button.borderWidth ?? 0)
 
 ```
+4. 이어서 옵셔널로 발생한 문제를 바인딩 해줍니다.
 
-5. ErrorViewController에서 Logger에 대한 종속성을 일단 주석처리하세요. 
 
 ```swift
 
 //      Logger.logFatal("no action defined.")
 
 ```
-    
+5. ErrorViewController에서 Logger에 대한 종속성을 일단 주석처리하세요. 
+
 ### _Modularizing a storyboard_
     
 앱에서 스토리 보드를 통해 ErrorViewController를 만듭니다. 현재는 메인 스토리 보드를 통해 UIViewController + Alert.swift 에서 명시적으로 수행됩니다. 이 스토리 보드는 앱 모듈에 있으므로이 프레임 워크에서 사용할 수 없습니다.   
     
 이 문제를 해결하려면 다음 단계에 따라 뷰 컨트롤러를 UIHelpers 프레임워크 의 새 스토리 보드로 이동 합니다.
     
+![image](https://user-images.githubusercontent.com/60660894/91999369-41db3e80-ed77-11ea-852e-276df0247ce4.png)
 1. Main.storyboard를 열고 Error View Controller Scene을 선택합니다.
 2. 이제 Xcode 메뉴 도구의 에디터 -> 스토리보드 리팩토링을 선택합니다.
-![image](https://user-images.githubusercontent.com/60660894/91999369-41db3e80-ed77-11ea-852e-276df0247ce4.png)
+![image](https://user-images.githubusercontent.com/60660894/91999527-764efa80-ed77-11ea-8d1d-d3597cd7782f.png)
 3. 이름을 UIHelpers.storyboard로 지정합니다.
 4. 그룹을 UIHelpers로 변경합니다.
 5. 현재 타겟인 MyBiz의 체크박스를 해제하고 UIHelpers을 체크합니다.
-![image](https://user-images.githubusercontent.com/60660894/91999527-764efa80-ed77-11ea-8d1d-d3597cd7782f.png)
 6. 저장을 클릭 합니다.
 7. Main.storyboard에서 참조된 ErrorViewController 레퍼런스를 삭제합니다.
+8. 다음으로 UIViewController + Alert.swift 에서 let alertController = ... 줄을 다음으로 바꿉니다 .
+```swift
+let thisBundle = Bundle(for: ErrorViewController.self) 
+let storyboard = UIStoryboard(name: "UIHelpers",
+                              bundle: thisBundle)
+let alertController = storyboard.instantiateViewController(withIdentifier: "error")
+  as! ErrorViewController
+```
+이제 동일한 장면이 로드되지만 프레임워크 내에있는 새 스토리보드에서 로드됩니다.
+
+### _Moving tests_
+
+테스트도 이동할 수 있습니다. 
+
+1. UIHelpersTests 에서 UIHelpersTests.swift를 삭제합니다.
+2. 다음으로 UIHelpersTests 에서 Cases 그룹을 만들고 ErrorViewControllerTests.swift를 MyBizTests에서 이 그룹으로 이동 합니다. 
+3. @testable import 행을 @testable import UIHelpers로 변경합니다. 
+4. setUp()도 바꿔줍니다. 
+```swift
+override func setUp() {
+  super.setUp()
+  sut = UIStoryboard(name: "UIHelpers",
+                     bundle: Bundle(for: ErrorViewController.self))
+    .instantiateViewController(withIdentifier: "error") as? ErrorViewController
+}
+```
+5. 이 새로운 setUp은 좀 전에 만든 UIHelpers.storyboard 을 사용합니다. 좌측 메뉴의 테스트 네비게이터에서 UIHelpersTests을 보면 테스트가 활성화 되어있는 것을 볼 수 있습니다. 활성화가 안되어있으면 테스트를 우클릭하고 활성화를 선택하세요. 
+![image](https://user-images.githubusercontent.com/60660894/92001056-2ffa9b00-ed79-11ea-8566-774439a02b5f.png)    
+이제 UIHelpers를 빌드하고 테스트 할 수 있으며, 이 주요 리팩터링이 작동 할 것이라는 확신을 조금 더 느낄 수 있습니다.    
+    
+### _Using the new framework with Login_
+    
 
 
 
-### _Getting started_
-### _Getting started_
 ### _Getting started_
 ### _Getting started_
     
