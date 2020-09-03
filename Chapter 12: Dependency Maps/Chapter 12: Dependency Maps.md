@@ -53,16 +53,24 @@ LoginViewController에 많은 2 차 종속성이있는 종속성이 있습니까
 둘 다 실제로 이러한 모델을 사용하지 않습니다!
 결과적으로 LoginViewController-to-APIDelegate 관계, LoginViewController-to-Models 관계 및 APIDelegate 상자 자체는 모두 문제가 있습니다.
 이들 각각을 빨간색으로 강조 표시하십시오.
+
+
 LoginViewController의 세 가지 직접적인 종속성은 Skin, Validators 및 UIViewController + Alert입니다.
 로그인과 동일한 모듈로 가져 오는 것이 합리적입니까?
 Skin이 LoginViewController에 의해서만 사용 되었다면 같은 모듈로 끌어들이는 것이 좋습니다.
 그러나 ErrorViewController에서도 사용되므로이 작업을 수행하는 것은 좋지 않습니다.
 LoginViewController-to-Skin 관계와 Skin 상자 자체를 빨간색으로 강조 표시합니다.
+
+
 유효성 검사기를 동일한 로그인 모듈로 이동해야합니까? 네, 실제로! LoginViewController에서만 사용되며 해당 메서드는 로그인 유효성 검사와 명시 적으로 관련됩니다.
 이 관계와 유효성 검사기 상자를 녹색으로 강조 표시하여 이동해도됨을 나타냅니다.
+
+
+
 UIViewController + Alert가 동일한 로그인 모듈에있는 것이 합리적입니까?
 아니요, 일반 구성 요소이며 앱 전체의 여러 위치에서 사용됩니다.
 이것은 실제로 별도의 모듈 자체에있는 것이 합리적 일 수 있지만 로그인 모듈에는 속하지 않습니다.
 따라서 LoginViewController-to- UIViewController + Alert 관계와 UIViewController + Alert 상자 자체를 빨간색으로 강조 표시합니다.
+
 궁극적으로 종속성 맵은 다음과 같아야합니다.
 
