@@ -37,7 +37,7 @@
     
 종속성 맵은 LoginViewController의 싸이클에서 자유로으므로 이제 마지막으로 일부 파일을 이동할 수 있습니다.
     
-![image](https://user-images.githubusercontent.com/60660894/91911294-bec0d680-eceb-11ea-93dc-f9a69f64181d.png)
+![image](https://user-images.githubusercontent.com/60660894/92084861-f2daeb00-ee02-11ea-945a-31ec0d3bee73.png)
     
 두 개의 "녹색"파일 LoginViewController.swift 및 Validators.swift를 잡고 MyBiz 대상에서 Login 대상으로 드래그합니다.    
 앱을 빌드하고 실행하면 많은 빨간색 오류가 표시됩니다. LoginViewController 는 이제 나쁜 종속성이 없을 수 있지만 종속성이 전혀 없습니다. 이제 이것을 해결해야 합니다.    
