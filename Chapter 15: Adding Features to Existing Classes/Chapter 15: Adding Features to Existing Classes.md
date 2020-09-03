@@ -366,19 +366,198 @@ var analytics : AnalyticsAPI ?
 ```
     
 ### _Another interesting use case_
+      
+이미 만들어놓은 메소드를 통해 할 수 있는 일은 메서드가 호출 된 횟수 나 메서드가 호출되는 순서를 확인하는 것입니다.    
+
+1. MockAnalyticsAPI.swift를 열고 var reportSent 아래에 var reportCount = 0 을 추가합니다.     
+2. 그리고 sendReport(report :) 끝에 reportCount = reportCount + 1 을 추가합니다.     
+3. 다시 AnnouncementsTableViewControllerTests.swift 돌아와서 아래 코드를 추가합니다. 
+```swift
+
+func testController_whenShownTwice_sendsTwoReports() { // when
+  whenShown()
+  whenShown()
+// then
+  XCTAssertEqual(mockAnalytics.reportCount, 2)
+}
+
+```
+이처럼 미리 만들어놓은 코드를 활용해서 화면이 표시 될 때마다 보고서가 전송되는지 테스트 할 수 있었습니다.    
     
-sad
+### _Passing around dependencies_
 
+이제 분석 기능이 테스트에서 작동하지만 앱을 실행할 때는 작동하지 않습니다.    
+이는 여전히 AnalyticsAPI를 AnnouncementsTableViewController에 전달해야하기 때문입니다. 
 
+스토리 보드를 사용할 때 prepare (for : sender :) segue 메서드에서 이를 수행하여 필요한 모든 종속성을 다음 뷰 컨트롤러 (또는 유사하게 뷰 모델 또는 기타 도우미에서)에 주입하려고합니다.
 
+이 앱은 화면에 수동으로 추가 된 일반 UITabBarController를 사용합니다. 재정의 할 prepare(for : sender :) 메서드가 없습니다.
 
+따라서 분석도 수동으로 설정해야합니다.
 
+잠재적으로 많은 뷰 컨트롤러에 추가 할 것임을 알고 있습니다.
 
+최소한의 영향으로 기존 클래스에 추가 할 수있는 방법에 대해 생각하는 것이 좋습니다.
 
+다시 한 번 구조 프로토콜을 의미합니다.
 
+1. AnalyticsAPI.swift를 열고 파일 끝에 다음 프로토콜을 추가합니다.
+```swift
 
+protocol ReportSending: AnyObject {
+  var analytics: AnalyticsAPI? {get set}
+}
 
-### _Making a _
-### _Making a _
-
+```
+변수를 추가하고 모든 클래스에서이 프로토콜을 준수하면 AnalyticsAPI 구현을 삽입 할 수 있습니다.   
     
+2. AnnouncementsTableViewController.swift를 열고 파일 끝에 다음 확장자를 추가합니다.
+```swift
+
+extension AnnouncementsTableViewController: ReportSending {}
+
+```
+그리고 마찬가지로 AnnouncementsTableViewController에 대한 추가 정보를 노출하지 않고도 분석 개체를 제공 할 수 있습니다.    
+    
+3. AppDelegate.swift을 열고 handleLogin(userId:)을 아래와 같이 변경합니다. 
+```swift
+
+func handleLogin(userId: String) {
+  self.userId = userId
+  let storyboard = UIStoryboard(name: "Main", bundle: nil)
+  let tabController = storyboard.instantiateViewController(
+   withIdentifier: "tabController") as! UITabBarController
+
+  tabController.viewControllers?.compactMap { $0 as? ReportSending }.forEach { $0.analytics = api }
+
+  window?.rootViewController = tabController
+}
+
+```
+이제 ReportSending 을 준수하는 모든 탭바의 뷰컨트롤러에 AnalyticsAPI가 추가됩니다.    
+여기에는 AnnouncementsTableViewController가 포함되어 있으므로 이제 viewWillAppear(_ :)가 실행될 때마다 로깅이 표시 됩니다.
+
+앱을 빌드하고 실행합니다. 로그인하면 AnnouncementsTableViewController 탭이 표시됩니다.     
+브라우저에서 http://localhost:8080/api/analytics를 열면 아래와 유사한 기록 된 이벤트가 표시됩니다.
+![image](https://user-images.githubusercontent.com/60660894/92064191-f5741b00-edd7-11ea-909e-f7004357cc20.png)
+
+### _Adding more events_
+    
+이제 보고서를 보내는 하나의 화면이 있습니다. 추가 화면에 보고서를 추가하는 것은 간단해야 합니다.   
+    
+1. OrgTableViewController.swift 에서 var analytics : AnalyticsAPI?를 추가합니다.    
+2. 마지막으로 파일 제일 아래에 extension OrgTableViewController: ReportSending {}를 추가합니다.       
+3. MyBizTests/Cases에 OrgTableViewControllerTests.swift를 만들고 내용을 다음으로 바꿉니다.    
+```swift
+
+class OrgTableViewControllerTests: XCTestCase {
+  
+  var sut: OrgTableViewController!
+  var mockAnalytics: MockAnalyticsAPI!
+  
+  override func setUp() {
+    super.setUp()
+    sut = UIStoryboard(name: "Main", bundle: nil)
+      .instantiateViewController(withIdentifier: "org") as? OrgTableViewController
+    mockAnalytics = MockAnalyticsAPI()
+    sut.analytics = mockAnalytics }
+  
+  override func tearDown() { sut = nil
+    mockAnalytics = nil
+    super.tearDown()
+  }
+  
+  func whenShown() {
+    sut.viewWillAppear(false)
+  }
+  
+  func testController_whenShown_sendsAnalytics() { // when
+    whenShown()
+    // then
+    XCTAssertTrue(mockAnalytics.reportSent)
+    
+  }
+}
+
+```
+AnnouncementsTableViewControllerTests 와 매우 유사하므로 익숙해 보일 것 입니다.    
+testController_whenShown_sendsAnalytics()는 OrgTableViewController가 표시 될 때 보고서가 전송되는지 테스트 합니다.     
+테스트를 통과하려면 OrgTableViewController가 보기가 표시 될 때 보고서를 보내야합니다.      
+그러나 viewWillAppear(_ :) 를 수정하기 전에 상용구를 복사 할 필요가 없도록 도우미 메서드를 만드는 것이 좋습니다.    
+    
+4. Report.swift를 열고 Report에 다음 메소드를 추가합니다.
+```swift
+
+struct Report: Codable {
+  var name: String
+  var recordedDate: Date
+  var type: String
+  var duration: TimeInterval?
+  var device: String
+  var os: String
+  var appVersion: String
+  
+  static func make(event: AnalyticsEvent, type: AnalyticsType)
+    -> Report {
+    return Report(name: event.rawValue,
+                  recordedDate: Date(),
+                  type: type.rawValue,
+                  duration: nil,
+                  device: UIDevice.current.model,
+                  os: UIDevice.current.systemVersion,
+                  appVersion: Bundle.main
+                    .object(forInfoDictionaryKey:
+                      "CFBundleShortVersionString")
+                    as! String)
+  }
+  
+}
+
+```
+
+이 팩토리 메서드는 보고서에 포함되는 모든 상수를 처리하므로 호출자는 각 화면의 세부 사항에 대해서만 걱정하면됩니다. 
+
+5. 이제 OrgTableViewController.swift 에서 이 메서드를 사용할 수 있습니다. OrgTableViewController로 돌아가서 viewWillAppear(_ :) 끝에 다음을 추가합니다.   
+
+```swift
+
+let report = Report.make(event: .orgChartShown, type: .screenView)
+analytics?.sendReport(report: report)
+    
+```
+빌드하고 실행하면 탭을 변경할 때 기록 된 두 개의 서로 다른 화면 이벤트가 표시됩니다.   
+
+
+
+
+### _Challenge_
+    
+처리해야 할 실행 취소 된 작업이 몇 가지 있습니다.
+    
+- Report.make 메서드를 사용 하도록 AnnouncementsTableViewController 를 정리합니다.   
+- 다른 화면에 screenView 분석을 추가합니다. 힌트로 UINavigationController를 통해 AnalyticsAPI를 전달해야합니다.   
+
+### _Key points_
+    
+- 새로운 기능을 추가하기 위해 전체 수업을 테스트 할 필요는 없습니다.    
+- 약간의 중복성을 추가하더라도 기능을 확장하는 방법을 만들 수 있습니다.   
+- 프로토콜을 사용하여 종속성 및 확장을 삽입하여 레거시 코드에서 새 코드를 분리합니다.   
+- TDD 방법은 깨끗하고 테스트 된 기능을위한 길을 안내합니다.    
+
+### _Where to go from here?_
+        
+튜토리얼을 끝냈습니다.    
+이제 API를 AnalyticsAPI 및 LoginAPI와 같은 특정 프로토콜로 계속 분해 할 수 있습니다.        
+delegate를 결과로 바꾸고 RequestSender를 사용하여 코드를 더 테스트 가능하게 만들어 API를 점진적으로 개선 할 수도 있습니다.   
+RequestSender를 자체 개체로 재작업하여 서버 세부 정보가 포함 된 API로 전달할 수도 있습니다.    
+그런 다음 기존 테스트에서 MockAPI를 대체하여 더 좋고 포괄적인 단위 테스트를 작성할 수 있습니다.    
+이렇게하면 라이브 서버에 완전히 접촉하기 위해 특성화 테스트가 필요하지 않습니다. 당신의 일은 결코 끝나지 않습니다.   
+
+이 접근 방식에는 몇 가지 단점도 있습니다.    
+많은 작은 프로토콜에 의해 도입된 간접적인 방법으로 인해 코드를 디버그하기가 더 어려워 질 수 있으므로 포괄적인 테스트를 수행하는 것이 중요합니다. 메서드를 돋보이게 할 때 이전 코드로 돌아가서 다시 방문하지 않으려는 유혹이 생길 수 있으며, 신규 사용자에게는 혼란스러울 수있는 상태로 앱을 남겨 둡니다.
+
+이것으로 레거시 코드 튜토리얼의 끝입니다. 코드 재구성 및 격리를위한 더 많은 기술을 보려면 자습서 https://store.raywenderlich.com/products/design-patterns-by-tutorials의 디자인 패턴을 확인하십시오.
+
+
+
+
