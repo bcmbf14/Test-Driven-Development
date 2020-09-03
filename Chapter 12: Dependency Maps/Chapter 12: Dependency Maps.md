@@ -13,4 +13,4 @@
       > 매우 큰 클래스의 종속성을 깨뜨릴 시간이 항상 있거나 불가능할 수도 있습니다. 이 장에서는 테스트되지 않은 코드의 변경을 최소화하면서 기존 클래스에 기능을 추가하는 전략을 배웁니다.   
 # 
 ### _Getting started_
-![image](https://user-images.githubusercontent.com/60660894/92001056-2ffa9b00-ed79-11ea-8566-774439a02b5f.png)
+![image](https://user-images.githubusercontent.com/60660894/91911294-bec0d680-eceb-11ea-93dc-f9a69f64181d.png)
