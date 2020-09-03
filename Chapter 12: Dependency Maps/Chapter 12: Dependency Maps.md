@@ -21,18 +21,14 @@
 따라서 이를 가능하게하려면 종속성을 분리해야합니다. 이것은 종속성 맵이 해결하는 데 도움이 될 수있는 완벽한 문제입니다.   
 
 ### _Finding problematic dependencies_
-![image](https://user-images.githubusercontent.com/60660894/91911294-bec0d680-eceb-11ea-93dc-f9a69f64181d.png)
+![image](https://user-images.githubusercontent.com/60660894/92084861-f2daeb00-ee02-11ea-945a-31ec0d3bee73.png)
+
+로그인 기능을 따로 모듈로 분리하려고 합니다. 따라서 다른 것들은 제외하고 로그인 뷰컨트롤러를 기준으로 설명합니다.
+
+
     
 AppDelegate에 대한 종속성은 지양합니다.
 > AppDelegate를 모듈로 가져올 수 없으므로 일반적으로 문제가됩니다.
-
-문제가있는 관계는 AppDelegate를 가리키는 화살표입니다.
-여기에는 AppDelegate에 따른 LoginViewController와 AppDelegate에 따른 API가 포함됩니다.
-빨간색 마커가 편리합니까? 두 화살표 모두 빨간색으로 강조 표시하여 문제가 있음을 나타냅니다.
-
-AppDelegate 상자를 빨간색으로 강조 표시하여이를 나타냅니다.
-
-
 
 순환 종속성이 있습니까? 네, 그것들도 있습니다.
 LoginViewController는 AppDelegate에서 가져 오는 API에 의존합니다.
@@ -41,12 +37,16 @@ LoginViewController는 AppDelegate에서 가져 오는 API에 의존합니다.
 AppDelegate-to LoginViewController 관계는 어떻습니까? 이렇게하면 로그인을 별도의 모듈로 가져 오지 못합니까?
 아니, 사실. AppDelegate는 새 로그인 모듈에 의존 할 수 있으며, 차례로 LoginViewController를 설정할 수 있습니다.
 따라서 목표 측면에서 문제가되지 않습니다.
+
+
 LoginViewController-to-API 관계는 어떻습니까? 예, 이것은 두 가지 이유로 문제입니다.
 1. API는 앱 전체의 다른 곳에서 사용되므로 로그인 모듈로 가져 오기가 어렵습니다.
 2. API는 로그인 모듈에서 개념적으로 의미가 없습니다.
 앱 내의 모든 모델 및 네트워킹 호출에 대해 알고 있습니다.
 이것은 로그인이 알아야 할 범위를 벗어난 것입니다.
 따라서 LoginViewController-to-API 화살표와 API 상자를 빨간색으로 강조 표시하여 문제가 있음을 표시하십시오.
+
+
 LoginViewController에 많은 2 차 종속성이있는 종속성이 있습니까? 예, APIDelegate는 많은 모델에 의존합니다.
 로그인 모듈이 실제로 이러한 모델에 대해 알아야합니까?
 로그인과 관련된 두 가지 APIDelegate 메소드는 loginFailed (error :) 및 loginSucceeded (userId :)입니다.
