@@ -439,7 +439,7 @@ func handleLogin(userId: String) {
 
 앱을 빌드하고 실행합니다. 로그인하면 AnnouncementsTableViewController 탭이 표시됩니다.     
 브라우저에서 http://localhost:8080/api/analytics를 열면 아래와 유사한 기록 된 이벤트가 표시됩니다.
-![image](https://user-images.githubusercontent.com/60660894/92064191-f5741b00-edd7-11ea-909e-f7004357cc20.png)
+![image](https://user-images.githubusercontent.com/60660894/92065419-a8457880-edda-11ea-9587-a42345cce68a.png)
 
 ### _Adding more events_
     
