@@ -47,8 +47,8 @@
 
 
 이 글은 아래의 책을 공부한 내용을 나름대로의 주관과 생각을 더하여 재가공 한 것입니다. 더 자세한 내용을 알고 싶다면 아래 링크를 참고해주세요. 
-* 📕 iOS Test-Driven Development by Tutorials, 2020 Razeware LLC, raywenderlich  
-https://store.raywenderlich.com/products/ios-test-driven-development
+> iOS Test-Driven Development by Tutorials, 2020 Razeware LLC, raywenderlich  
+> https://store.raywenderlich.com/products/ios-test-driven-development
 
 
 
