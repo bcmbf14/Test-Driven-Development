@@ -1,4 +1,11 @@
 # _Chapter 2: The TDD Cycle_
+
+### _Section I: Hello, TDD!_
+  - Chapter 1: What Is TDD?
+      > 테스트 주도 개발 (TDD)은 테스트를 통해 많은 작은 변경을 수행하여 소프트웨어를 개발하는 반복적 인 방법입니다.
+  - Chapter 2: The TDD Cycle
+      > TDD에는 Red-Green-Refactor Cycle로 알려진 4 단계가 있습니다.
+# 
     
 이전 장에서 TDD가 4단계의 주기가 있다는 것을 배웠습니다. 그것은 색상으로 구분됩니다.  
         
