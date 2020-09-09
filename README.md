@@ -42,8 +42,9 @@
  |15|[Adding Features to Existing Classes]() | - |
 
 ## ContactMe
-* ??
-* ??
+* bcmbf14@gmail.com
+* https://github.com/bcmbf14/
+* https://bcmbf14.tistory.com/
 
 
 > 이 글은 아래의 책을 기초로 나름대로의 주관과 생각을 더하여 재가공한 것입니다.   
