@@ -311,41 +311,273 @@ class StepCountControllerTests: XCTestCase {
 
 1. var sut: StepCountController!
 > 이전에 배운 것과 같이 우리는 지금 StepCountController를 테스트 할 것이기 때문에 전역변수를 선언합니다.       
-> 그런데 컴파일에러가 나죠? 이유는 StepCountController가 FitNessTests와 다른 모듈에 있기 때문입니다. swift의 기본 접근제어는 internal이죠? 그래서 그런겁니다. 해결 방법은 2가지가 있습니다.       
-        
-> 1. StepCountController클래스를 public으로 지정한다.     
-이 방법을 사용하면 테스트클래스에서 사용할 수 있지만 뷰컨트롤러를 앱 외부에서 볼 수 있으므로 SOLID원칙에 위배됩니다.      
-> 2. @testable 속성을 사용한다.        
-Xcode는 데이터 유형을 일반 용도로 사용하지 않고 테스트 용으로 노출하는 방법을 제공합니다. 이 속성은 테스트에서만 사용할 수 있습니다.      
-import XCTest아래에 @testable import FitNess해줍니다.      
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
-### _Structure of XCTestCase subclass_
-### _Structure of XCTestCase subclass_
-### _Structure of XCTestCase subclass_
-### _Structure of XCTestCase subclass_
-### _Structure of XCTestCase subclass_
-### _Structure of XCTestCase subclass_
+> 그런데 컴파일에러가 나죠? 이유는 StepCountController가 FitNessTests와 다른 모듈에 있기 때문입니다. swift의 기본 접근제어는 internal이죠? 그래서 그런겁니다. 
+2. 해결 방법 
+> StepCountController클래스를 public으로 지정한다.     
+> 이 방법을 사용하면 테스트클래스에서 사용할 수 있지만 뷰컨트롤러를 앱 외부에서 볼 수 있으므로 SOLID원칙에 위배됩니다.      
+> @testable 속성을 사용한다.        
+> Xcode는 데이터 유형을 일반 용도로 사용하지 않고 테스트 용으로 노출하는 방법을 제공합니다. 이 속성은 테스트에서만 사용할 수 있습니다. import XCTest아래에 @testable import FitNess해줍니다.      
+                                
+이제, 세팅은 다 했으니 테스트코드를 만들어주면 됩니다. 시작버튼이 눌렸을 때, 테스트해야 할 것은 2가지 입니다.
+1. 앱 상태 업데이트        
+2. UI 업데이트      
 
 
+### _Testing a state change_
 
+```swift 
 
+  func testController_whenStartTapped_appIsInProgress(){
+    //when
+    sut.startStopPause(nil)
+    
+    //then
+    let state = AppModel.instance.appState
+    XCTAssertEqual(state, AppState.inProgress)
+}
 
+```
 
+1. testController_whenStartTapped_appIsInProgress() 메소드를 생성해줍니다.        
+> 컨트롤러의 버튼을 탭했을 때, 앱이 inProgress인지를 검사하는거죠. 실패합니다.      
+2. startStopPause()     
+> startStopPause()에서 아무런 처리도 해주지 않았기 때문이죠. 메소드 내에서 AppModel.instance.start()를 해줍니다. 통과합니다.      
+                
+### _Testing UI update_
+```swift
 
+  func testController_whenStartTapped_buttonLabelIsPause(){
+    //when
+    sut.startStopPause(nil)
+    
+    //then
+    let text = sut.startButton.title(for: .normal)
+    XCTAssertEqual(text, AppState.inProgress.nextStateButtonLabel)
+    
+  }
+  
+```
+1. buttonLabelIsPause
+> 메소드 이름도 유사합니다. 다만 바뀐 것은 기대치가 버튼의 레이블값이 Pause로 바뀌었느냐를 묻는것이죠.
+2. XCTAssertEqual(text, AppState.inProgress.nextStateButtonLabel)
+> 버튼의 타이틀 값을 가져와서 비교해줍니다. 실패합니다. 
+3. @IBAction func startStopPause 에서 코드를 추가해줍니다. 
+> 특이한 점은 nextStateButtonLabel 입니다. extension으로 문자열 하드코딩이아니라 앱의 값을 이용하기 때문에 문자열이 변경되거나 지역화되어도 테스트는 통과됩니다.
 
+```swift 
 
+  @IBAction func startStopPause(_ sender: Any?) {
+    AppModel.instance.start()
+    
+    let title = AppModel.instance.appState.nextStateButtonLabel
+    startButton.setTitle(title, for: .normal)
+  }
+  
+```
+
+```swift
+
+extension AppState {
+  var nextStateButtonLabel: String {
+    switch self {
+    case .notStarted:
+      return "Start"
+    case .inProgress:
+      return "Pause"
+    case .paused:
+      return "Resume"
+    case .caught:
+      return "Try Again"
+    case .completed:
+      return "Start Over"
+    }
+  }
+}
+
+```
+        
+### _Testing initial conditions_
+        
+테스트가 끝났나요? 아쉽게도 그건 아닙니다. 아직 개선해야할 점이 있죠. 잘보면 지금 만들어놓은 두 테스트는 문제가 있어요.       
+두 테스트는 상태에 대한 특정 초기 조건에 의존합니다. 예를 들어 testController_whenStartTapped_buttonLabelIsPause에서 원하는 것은 .notStarted 에서 .inProgress 로의 전환을 테스트 하는 것 입니다. 그러나 뷰 컨트롤러가 .inProgress 에서 이미 시작된 경우에도 테스트를 통과 할 수 있다는 문제가 있는거죠.        
+
+```swift
+
+  // MARK: - Initial State
+  
+  func testController_whenCreated_buttonLabelIsStart() {
+    //given
+    sut.viewDidLoad()
+    
+    let text = sut.startButton.title(for: .normal)
+    XCTAssertEqual(text, AppState.notStarted.nextStateButtonLabel)
+    
+  }
+  
+```
+
+```swift
+
+    override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    let title = AppState.notStarted.nextStateButtonLabel
+    startButton.setTitle(title, for: .normal)
+  }
+  
+```
+
+1. testController_whenCreated_buttonLabelIsStart()
+> tearDown()과 testController_whenStartTapped_appIsInProgress()사이에 테스트를 하나 더 만들어줍니다. 이름 그대로 처음 생성될때 버튼의 레이블값이 start가 맞냐를 물어보는 것이죠. 처음에 //given 조건을 주지 않으면 테스트는 당연히 실패합니다.        
+> StepCountController의 viewDidLoad에 코드를 추가합니다. 초기값을 잡아주는 것이죠. 그리고 //given 조건을 줍니다. 이제 통과합니다.        
+2. MARK: - Initial State, MARK: - In Progress       
+> 또한 테스트 케이스를 섹션으로 나누는 데 도움이되도록 파일에 일부 MARK를 추가 합니다. 클래스가 더 복잡 해짐에 따라 테스트 파일이 상당히 커질 것이므로 잘 정리 된 상태로 유지하는 것이 중요합니다.     
+3. 버튼의 레이블이 바뀌는지 확인     
+> sut 가 xib 에서 실제로 로드되어 뷰 계층 구조에 배치 되지 않으므로 viewDidLoad()에 대한 호출이 필요하므로 뷰 라이프 사이클 메서드가 호출되지 않습니다. 테스트를 위해 적절하게로드 된 뷰 컨트롤러를 얻는 방법은 4 장, "테스트 표현식"에서 볼 수 있습니다.        
+             
+### _Refactoring_
+                
+지금 StepCountController.swift를 보면 버튼 텍스트를 설정하는 코드가 엄청나게 중복됩니다. 이걸 해결해봅시다.        
+
+```swift
+
+class StepCountController: UIViewController {
+
+  @IBOutlet weak var stepCountLabel: UILabel!
+  @IBOutlet var startButton: UIButton!
+  @IBOutlet weak var chaseView: ChaseView!
+
+  init() {
+    // this is a cheat to simplify chapter 3, a proper way of getting an instance will be handled in chapter 4
+    super.init(nibName: nil, bundle: nil)
+    startButton = UIButton()
+  }
+
+  required init?(coder aDecoder: NSCoder) {
+    super.init(coder: aDecoder)
+  }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+  
+    updateButton()
+  }
+
+  @IBAction func startStopPause(_ sender: Any?) {
+    AppModel.instance.start()
+    
+    updateButton()
+  }
+  
+  private func updateButton() {
+    let title = AppModel.instance.appState.nextStateButtonLabel
+    startButton.setTitle(title, for: .normal)
+  }
+}
+
+```
+
+1. private func updateButton()
+> updateButton() 메소드를 만들어주었습니다. 이 도우미 메서드는 버튼이 앱 상태의 변경을 반영해야 할 때마다 파일의 여러 위치에서 사용됩니다. 이것은 클래스의 내부 구현 세부 사항이므로 private일 수 있습니다. 동작 방법은 내부적으로 유지 되며 여전히 테스트 할 수 있습니다.        
+2. startStopPause(), viewDidLoad()
+> 코드를 바꿔줍니다. startStopPause()같은 경우는 start하면서 앱상태값이 바뀌고, viewDidLoad()같은 경우는 AppModel이 생성되면서 초기값이 notStart이기 때문에 테스트가 통과할 수 있습니다. 
+        
+### _Challenge_
+       
+바꿔줘야 할 작업이 있습니다.        
+1. AppModel은 실제로 internal이어야 할 때 공개 됩니다. 접근 제어를 업데이트하고 AppModelTests에서 import @testable를 사용합니다.
+        
+```swift 
+
+import Foundation
+
+class AppModel {
+
+  static let instance = AppModel()
+
+  private(set) var appState: AppState = .notStarted
+
+  func start() {
+    appState = .inProgress
+  }
+}
+
+import XCTest
+@testable import FitNess
+
+class AppModelTests: XCTestCase {
+
+  var sut: AppModel!
+
+  override func setUp() {
+    super.setUp()
+    sut = AppModel()
+  }
+
+  override func tearDown() {
+    sut = nil
+    super.tearDown()
+  }
+
+  func testAppModel_whenInitialized_isInNotStartedState() {
+    let initialState = sut.appState
+    XCTAssertEqual(initialState, AppState.notStarted)
+  }
+
+  func testAppModel_whenStarted_isInInProgressState() {
+    // when started
+    sut.start()
+
+    // then it is in inProgress
+    let newState = sut.appState
+    XCTAssertEqual(newState, AppState.inProgress)
+  }
+}
+
+```
+
+2. StepCountControllerTests.swift 에는 startStopPause (_ :) 호출에 중복성을 제거하세요. 
+
+```swift
+
+// MARK: - When
+
+  fileprivate func whenStartStopPauseCalled() {
+    sut.startStopPause(nil)
+  }
+  
+  // MARK: - In Progress
+
+  func testController_whenStartTapped_appIsInProgress() {
+    whenStartStopPauseCalled()
+
+    // then
+    let state = AppModel.instance.appState
+    XCTAssertEqual(state, AppState.inProgress)
+  }
+
+  func testController_whenStartTapped_buttonLabelIsPause() {
+    whenStartStopPauseCalled()
+
+    // then
+    let text = sut.startButton.title(for: .normal)
+    XCTAssertEqual(text, AppState.inProgress.nextStateButtonLabel)
+  }
+  
+```
+        
+### _Key points_
+        
+- TDD는 앱 로직을 작성하기전에 테스트를 작성하는 것입니다.
+- 논리 문을 사용하여 테스트해야 할 사항을 결정하십시오.
+- 각 테스트는 첫 실행시 실패해야합니다. 컴파일하지 않으면 실패로 간주됩니다.
+- 가독성과 성능을 위해 코드를 리팩토링하는 데 테스트를 사용합니다.
+- 좋은 명명 규칙을 사용하면 문제를 쉽게 탐색하고 찾을 수 있습니다.
+        
+### _Where to go from here?_
+        
+테스트 주도 개발은 기본적으로 매우 간단합니다. 단위 테스트를 통과하려면 앱 코드 만 작성하세요. 이 책의 나머지 부분에서는 red-green-refactor 모델을 계속해서 따르게 될 것입니다. 더 흥미로운 유형의 테스트를 탐색하고 분명히 단위 테스트가 불가능한 것을 테스트하는 방법을 배우게됩니다.        
+Xcode가 테스트 및 테스트 대상과 함께 작동하는 방법에 대한 자세한 내용은 개발자 문서를 참조하십시오. iOS 테스트에 대한 요약 된 개요를 보려면이 무료 자습서를 사용해보십시오. 다음 장에서는 XCTAssert 함수, 뷰 컨트롤러 테스트, 코드 커버리지 및 단위 테스트 디버깅 에 대해 자세히 알아봅니다.
 # 
 # 
 # 
