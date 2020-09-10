@@ -243,21 +243,113 @@ class AppModel {
 ### _Using the host app_
         
 앱에 대한 다음 요구 사항은 센트럴 뷰가 실행 중인 위치에있는 사용자의 아바타를 표시해야한다는 것입니다.      
+```swift
 
+  func testChaseView_whenLoaded_isNotStarted() {
+    
+    let chaseView = sut.chaseView
+    XCTAssertEqual(chaseView?.state, AppState.notStarted)
+    
+  }
+  
+```
+1. StepCountControllerTests.swift에서 testChaseView_whenLoaded_isNotStarted()를 만듭니다.      
+2. testChaseView가 로드될 때의 상태가 notStarted인지 확인합니다. 실패합니다.         
+3. 왜 실패할까요? 오류메시지를 보면 chaseView?.state가 nil이라고 나옵니다.        
+> 왜 nil일까요? 그것은 테스트 앱 코드가 실행될 때 이미 chaseView가 로드되었기 때문입니다.      
+> 이게 무슨 말이냐면, 여기서는 setUp()메소드에서 sut = StepCountController() 라는 식으로 직접 초기화가 됩니다. 원래 정상적인 흐름이라면       
+> StepCountController가 생성되고 스토리 보드에 의해 채워지는데 말이죠. 결론적으로는 그 타이밍?이 다르다는 겁니다. 그럼 어떻게 해야 할까요?       
+4. 호스트 응용 프로그램을 사용하면 됩니다.(호스트~ 주인장? 뭐 그런거죠? 지금 만드는 게 FitNessTests니까 호스트는 당연히? FitNess겠네요.)
+> 단위 테스트가 앱 체계에서 테스트 작업의 일부로 실행 되면 Xcode는 대상 설정에 지정된대로 호스트 응용 프로그램을 사용합니다.      
+![image](https://user-images.githubusercontent.com/60660894/92714528-49ae6a80-f397-11ea-8ee1-263962f38124.png)      
+> 위 사진을 보면 FitNessTests의 타겟에 대한 응용프로그램으로 FitNess가 선택되어있는 것을 볼 수 있습니다.       
+> 즉, 테스트 작업을 실행하면 지정된 대상 (시뮬레이터 또는 장치)에서 호스트 앱이 시작됩니다. 테스트 실행기는 테스트를 시작하기 전에 앱이 로드 될 때까지 대기하고 테스트는 앱의 컨텍스트에서 실행됩니다.     
+> 결과적으로 UIApplication 개체와 테스트의 전체보기 계층에 접근 할 수 있다는 것이죠.     
+5. 새로운 그룹과 파일을 추가합니다.       
+![image](https://user-images.githubusercontent.com/60660894/92714931-ca6d6680-f397-11ea-85c7-c30e31038054.png)      
+6. 코드 내용을 바꿔줍니다.
+```swift
+import Foundation
+import UIKit
+@testable import FitNess
 
+func loadRootViewController() -> RootViewController {
+  let window = UIApplication.shared.windows[0]
+  return window.rootViewController as! RootViewController
+}
+```
 
+```swift
 
- 
+import Foundation
+import UIKit
+@testable import FitNess
+
+extension RootViewController {
+  
+  var stepController: StepCountController {
+    return children.first { $0 is StepCountController } as! StepCountController
+  }
+  
+}
+```
+> loadRootViewController메소드는 루트뷰컨트롤러를 리턴합니다.        
+> extension의 stepController를 활용하면 stepController에 접근할 수 있습니다.      
+        
 ### _Fixing the tests_
+        
+1. StepCountControllerTests.swift으로 다시 돌아와서 코드를 바꿔줍니다.      
+```swift
+
+  override func setUp() {
+    super.setUp()
+    let rootController = loadRootViewController()
+    sut = rootController.stepController
+  }
+  
+```
+> 이제 필요없어진 sut = StepCountController()를 삭제했습니다.     
+2. givenInProgress()를 추가해줍니다.       
+```swift
+
+// MARK: - Given
+
+  func givenInProgress() {
+    givenGoalSet()
+    sut.startStopPause(nil)
+  }
+  
+```
+> startStopPause() 때문에 앱의 상태값이 inProgress로 됩니다.         
+3. testChaseView_whenInProgress_viewIsInProgress()를 추가합니다.      
+```swift
+
+  func testChaseView_whenInProgress_viewIsInProgress() {
+    // given
+      givenInProgress()
+    // then
+    let chaseView = sut.chaseView
+    XCTAssertEqual(chaseView?.state, AppState.inProgress)
+  }
+
+```
+> 체이스뷰가 InProgress 일 때,  뷰가 InProgress인지 테스트합니다. 실패합니다. updateChaseView()가 구현되지 않았습니다.      
+> 내용을 채워줍니다. chaseView.state = AppModel.instance.appState       
+> 통과합니다.        
+
+
+> 참고 : 뷰 컨트롤러를 검색하고 테스트하는 또 다른 방법은 다음과 같습니다. 먼저 스토리 보드에 대한 참조를 가져옵니다.       
+> let storyboard = UIStoryboard(name: "Main", bundle: nil)      
+> 둘째, 뷰 컨트롤러에 대한 참조를 가져옵니다.     
+> let stepController = storyboard.instantiateViewcontroller(withIdentifier: "stepController") as! StepCountController       
+> 마지막으로 필요한 경우 다음과 같이 뷰를 로드 할 수 있습니다.       
+> stepController.loadViewIfNeeded()     
+> 이 패턴을 따르면 각 테스트에 대해 새로운 뷰 컨트롤러를 인스턴스화 할 수 있으며 각 테스트에 대해 뷰 컨트롤러를 설정하고 해체 할 수있는 옵션이 제공됩니다.      
+        
+### _Test ordering macers_
 
 
 
-
-
-
-
-
-### _Assert methods_
 ### _Assert methods_
 ### _Assert methods_
 ### _Assert methods_
