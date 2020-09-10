@@ -431,3 +431,11 @@ API에 대한 변경 사항을 반영하도록 업데이트 된 최종 종속성
 - 고급 iOS 앱 아키텍처
     
     
+# 
+# 
+# 
+> 이 글은 아래의 책을 기초로 나름대로의 주관과 생각을 더하여 재가공한 것입니다.   
+> 자세한 내용을 알고 싶다면 아래 링크를 참고해주세요. 교재 및 예제 코드는 저작권 문제로 제공되지 않습니다.  
+>        
+> iOS Test-Driven Development by Tutorials, 2020 Razeware LLC  
+> https://store.raywenderlich.com/products/ios-test-driven-development
