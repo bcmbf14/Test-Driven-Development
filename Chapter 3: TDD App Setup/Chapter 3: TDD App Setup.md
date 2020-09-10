@@ -280,9 +280,9 @@ class AppModelTests: XCTestCase {
 ```
 - Cases : 테스트 케이스 그룹으로 앱 코드와 병렬 구조로 구성됩니다. 이렇게하면 앱 클래스와 해당 테스트 사이를 쉽게 탐색 할 수 있습니다.      
 - Mocks : 기능 코드를 나타내는 코드로 구현과 기능을 분리 할 수 있습니다. 예를 들어 네트워크 요청은 일반적으로 Mocks처리됩니다. 나중에 이를 구축 할 것입니다.       
-- Helper classes and extensions : 테스트 코드를 더 쉽게 작성하기 위해 작성하지만 기능을 직접 테스트하거나 Mocks하지 않는 추가 코드의 경우.         
+- Helper classes and extensions : 테스트 코드를 더 쉽게 작성하기 위해 작성하지만 기능을 직접 테스트하거나 Mocks하지 않는 추가 코드의 경우.                 
         
-이제 테스트의 구조를 새롭게 그룹화 해줍니다. 변경된 테스트 그룹의 구조는 아래와 같습니다.
+이제 테스트의 구조를 새롭게 그룹화 해줍니다. 변경된 테스트 그룹의 구조는 아래와 같습니다.                 
 ![image](https://user-images.githubusercontent.com/60660894/92674381-27492c80-f358-11ea-8299-e4f83167e7b8.png)
                 
 ### _Using @testable import_
