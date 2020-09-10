@@ -129,10 +129,80 @@ return false
 
 ```
 ### _Testing Errors_
-        
+                
+이 앱은 goal이 있기 때문에 goal이 설정되지 않은 상태에서 앱이 inProgress 상태로 들어가는 것은 오류입니다. 
 
+```swift
 
+class AppModel {
 
+  static let instance = AppModel()
+
+  private(set) var appState: AppState = .notStarted
+  
+  let dataModel = DataModel()
+
+  func start() throws {
+    guard dataModel.goal != nil else {
+      throw AppError.goalNotSet
+    }
+    
+    appState = .inProgress
+  }
+}
+
+```
+
+```swift
+
+  @IBAction func startStopPause(_ sender: Any?) {
+    do {
+      try AppModel.instance.start()
+    }catch{
+      showNeedGoalAlert()
+    }
+    
+    updateUI()
+  }
+  
+```
+1. AppModel의 start메소드에 오류를 만들기위해 throws를 붙입니다.      
+2. StepCountController의 startStopPause에서 do-try-catch를 붙여줍니다. 오류가 발견되면 얼랏창을 띄워줍니다.      
+3. AppModelTests에서 testAppModel_whenStarted_isInInProgressState를 수정합니다. do-try-catch를 붙여줍니다.        
+
+```swift
+
+  func testModelWithNoGoal_whenStarted_throwsError() {
+    XCTAssertThrowsError(try sut.start())
+  }
+  
+```
+4. testModelWithNoGoal_whenStarted_throwsError테스트를 새로 추가합니다. 모델이 목표 설정없이 초기 상태에서 시작된 경우 오류가 발생하는지 확인할 수 있습니다.
+5. 오류가 발생하지 않았으니 테스트가 실패합니다. AppModel.swift에서 let dataModel = DataModel()를 추가합니다.       
+6. start() 맨 위에 가드문을 추가합니다. 테스트가 통과합니다.         
+7. 다음으로 goal설정이 start()가 오류를 발생시키지 않는다는 것을 의미하는지 확인합니다.         
+8. AppModelTests.swift에 아래 코드를 추가합니다.       
+```swift
+
+func givenGoalSet() {
+  sut.dataModel.goal = 1000 
+}
+
+```
+9. 다시 AppModelTests로 돌아와서 아래 테스트를 추가합니다. 이미 로직이 추가되어 있으므로 통과합니다.     
+```swift
+
+  func testStart_withGoalSet_doesNotThrow() {
+    // given
+    givenGoalSet()
+    // then
+    XCTAssertNoThrow(try sut.start())
+  }
+  
+```
+10. 이 코드 변경으로 인해 실패하기 시작한 다른 모든 테스트를 수정할 때입니다. testAppModel_whenStarted_isInInProgressState에서 맨위에 // given givenGoalSet()을 추가해주세요.      
+11. StepCountControllerTests로 가서 testController_whenStartTapped_appIsInProgress과 testController_whenStartTapped_buttonLabelIsPause에도 같은 메소드를 추가해줍니다.        
+12. 모두 통과합니다.
 
 
 
