@@ -207,11 +207,46 @@ class AppModel {
         
 ### _View controller testing_
         
+이제 모델에 goal이 있고 앱 상태에서 이를 확인할 수 있으므로 다음은 이를 사용자에게 노출하는 것입니다.        
+        
+### _Functional view controller testing_
+        
+뷰 컨트롤러를 테스트 할 때 중요한 것은 뷰와 컨트롤을 직접 테스트하지 않는 것입니다. 이것은 UI 자동화 테스트를 사용하여 더 잘 수행됩니다.        
+여기서 목표는 뷰 컨트롤러의 로직과 상태를 확인하는 것입니다.      
+기능 테스트는 논리 메서드 (업데이트 상태)에서 UI (콜백, 위임 메서드 등)와 상호 작용하는 별도의 메서드를 사용하여 수행됩니다.      
+           
+> 참고 : 다른 앱 아키텍처에 대한 경험이있는 경우 MVVM 또는 VIPER와 같은 것을 사용하면 이러한 유형의 논리를 더 깔끔하게 테스트 할 수 있습니다. 컨트롤러에서 ViewModel을 분리하면 컨트롤러에서 단위 테스트 가능한 로직이 제거됩니다. 이 섹션의 목적을 위해 기존 Apple MVC 모델을 사용하여 앱을 계속 빌드합니다. 이것은 대부분의 문서에서 다루는 내용이며 iOS 애플리케이션 개발을 시작하는 전통적인 디자인패턴입니다.              
+        
+```swift
+
+  func testDataModel_whenGoalUpdate_updatesToNewGoal() {
+    // when
+    sut.updateGoal(newGoal: 50)
+    // then
+    XCTAssertEqual(AppModel.instance.dataModel.goal, 50)
+  }
+  
+  override func tearDown() {
+    sut = nil
+    AppModel.instance.dataModel.goal = nil
+    super.tearDown()
+  }
+  
+```
+1. 이 테스트는 데이터 모델이 골이 업데이트 됐을 때, 잘 업데이트 되는지 확인합니다.
+2. StepCountControllerTests.swift에서 testDataModel_whenGoalUpdate_updatesToNewGoal()를 추가합니다. 
+3. tearDown에서 AppModel.instance.dataModel.goal = nil를 추가합니다.
+4. StepCountController의 updateGoal메소드에서 AppModel.instance.dataModel.goal = newGoal를 구현합니다. 
+
+ 
 
 
 
 
-### _Assert methods_
+
+
+
+
 ### _Assert methods_
 ### _Assert methods_
 ### _Assert methods_
