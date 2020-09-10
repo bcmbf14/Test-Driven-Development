@@ -536,7 +536,8 @@ class AppModelTests: XCTestCase {
 
 ```
 
-2. StepCountControllerTests.swift 에는 startStopPause (_ :) 호출에 중복성을 제거하세요. 
+2. StepCountControllerTests.swift 에는 startStopPause (_ :) 호출에 중복성을 제거하세요.       
+(fileprivate은 해당 모듈이 아니라 해당 소스파일 안에서만 쓸 수 있는 것)
 
 ```swift
 
