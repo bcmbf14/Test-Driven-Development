@@ -347,11 +347,85 @@ extension RootViewController {
 > 이 패턴을 따르면 각 테스트에 대해 새로운 뷰 컨트롤러를 인스턴스화 할 수 있으며 각 테스트에 대해 뷰 컨트롤러를 설정하고 해체 할 수있는 옵션이 제공됩니다.      
         
 ### _Test ordering macers_
+        
+전체 대상을 빌드하고 테스트하면 대부분의 테스트는 통과해야하지만 testController_whenCreated_buttonLabelIsStart 는 통과하지 않습니다. 이 테스트는 실패합니다. 좌측 메뉴의 레포트 네비게이터의 로그를 확인해봅니다. 콘솔창을 읽는 것 보다 이렇게 로그창을 보는게 더 보기 편합니다.              
+![image](https://user-images.githubusercontent.com/60660894/92817458-8d3dbe80-f401-11ea-8e78-ecd20db4b2a2.png)      
+        
+1. 오류 로그를 살펴볼게요.             
+> testController_whenCreated_buttonLabelIsStart()       
+> failed: ("Optional("Pause")") is not equal to ("Optional("Start")")       
+            
+> 무슨 말일까요? 컨트롤러에서 created됐을 때, 버튼의 레이블값이 Start여야 하는데 그게 지금 Pause라는 거죠? 이게 무슨말일까요?            
+> Pause는 앱상태가 inProgress일 때 나와야 하는 겁니다. 이것은 테스트가 새로운 StepCountController로 시작되지 않는다는 것을 뜻하죠.     
+> 즉, 호스트 앱의 StepCountController 사용에 대한 이전 변경은 새 컨트롤러가 매 setUp()마다 생성되지 않고 앱 상태가 유지됨을 의미합니다.         
+> 깨끗한 테스트를하려면 tearDown()에서 상태를 재설정해야합니다. 이를 돕기 위해 AppModel에 새 함수를 만들어 상태를 재설정 할 수 있습니다.             
+
+> testChaseView_whenLoaded_isNotStarted(),      
+> failed: ("Optional(FitNess.AppState.inProgress)") is not equal to ("Optional(FitNess.AppState.notStarted)")       
+> 위의 내용과 같음               
+2. AppModelTests.swift를 열고 다음을 추가합니다. 
+```swift
+
+  func givenInProgress() {
+    givenGoalSet()
+    try! sut.start()
+  }
+  
+```
+> 이렇게 하면 앱이 inProgress 상태로 전환되어 상태 restart 테스트가 실제로 변경 사항을 테스트할 수 있다.       
+3. 그리고 맨아래에 새로운 테스트를 추가해줍니다. 
+```swift
+
+  // MARK: - Restart
+  func testAppModel_whenReset_isInNotStartedState() {
+    // given
+    givenInProgress()
+    // when
+    sut.restart()
+    // then
+    XCTAssertEqual(sut.appState, .notStarted)
+  }
+  
+```
+```swift
+
+  func restart() {
+    appState = .notStarted
+  }
+  
+```
+
+> 이것은 아직 추가되지 않은 restart() 가 모델을 notStarted 로 되돌리는 지 테스트 합니다. 실패합니다.        
+> AppModel.swift에 가서 restart()를 추가하고 구현합니다.         
+4. StepCountControllerTests.swift의 tearDown()으로 돌아가서 메소드를 바꿔줍니다.        
+```swift
+
+  override func tearDown() {
+    AppModel.instance.dataModel.goal = nil
+    AppModel.instance.restart()
+    sut.updateUI()
+    super.tearDown()
+  }
+  
+```
+> 결론적으로 정리를 해보면, 핵심은 호스트 앱의 StepCountController사용에 대한 이전 변경이 새 컨트롤러가 매 setUp()마다 생성되지 않고 앱 상태가 유지된다는 거죠. 
+> 따라서 기존에는 작업을 sut = nil로 해줬었습니다. 그러나 새로 생성되는 게 아니니까 appState이 초기화가 되지 않는게 문제였었죠.               
+> 그래서 내용을 위처럼 바꿔주면서 restart() 함수를 하나 만들어줘서 앱상태 값을 초기화되도록 처리해준겁니다.       
+        
+### _Randomized order_
+        
+구성표의 테스트 작업에는 테스트 순서를 무작위로 지정 하는 옵션도 있습니다.          
+![image](https://user-images.githubusercontent.com/60660894/92822119-c62c6200-f406-11ea-9d73-6aad830f76dc.png)      
+![image](https://user-images.githubusercontent.com/60660894/92822191-dc3a2280-f406-11ea-9221-e89c5c47c904.png)      
+
+1. Xcode-Product-Scheme-Edit Scheme...를 선택합니다.      
+2. 가운데 창에서 옆에 옵션 버튼을 클릭합니다. 그것을 클릭하고 팝업에서 Randomize execution order를 선택하면 매번 무작위 순서로 테스트가 실행됩니다.        
+        
+### _Code coverage_
+        
 
 
 
-### _Assert methods_
-### _Assert methods_
 ### _Assert methods_
 ### _Assert methods_
 ### _Assert methods_
