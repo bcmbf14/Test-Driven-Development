@@ -237,6 +237,7 @@ class AppModelTests: XCTestCase {
   }
   
   func testAppModel_whenStarted_isInInProgressState() {
+    sut.start()
     XCTAssertEqual(sut.appState, AppState.inProgress)
   }
   
@@ -251,18 +252,85 @@ class AppModelTests: XCTestCase {
 > setUp(), tearDown()를 업데이트 해줍니다. 순서가 중요한데 테스트가 실행되기 전에 setUp()이 실행되므로 그전에 sut값을 넣어주고, 테스트가 완료된 직후에 tearDown이 실행되므로 메모리 초기화를 위해서 sut에 nil을 할당해줍니다.      
 > XCTestCases와 관련된 문제는 모든 테스트가 완료될 때까지 초기화되지 않는다는 것입니다. 즉, 메모리 사용량을 제어하거나 파일 시스템을 정리하거나 발견 된 방식으로 되돌리려면 이처럼 테스트를 실행 한 후 테스트 상태를 정리하는 것이 중요합니다.      
 3. testAppModel_whenInitialized_isInNotStartedState(), testAppModel_whenStarted_isInInProgressState()
-> 테스트 메소드를 리팩토링 해줍니다. 코드가 각 한줄로 보기좋아졌습니다. 
+> 테스트 메소드를 리팩토링 해줍니다. 코드가 이전보다 보기좋아졌습니다. 
+        
+### _Your next set of tests_
+        
+우리는 지금 앱모델이 처음 생성됐을 때의 상태가 notStarted인지, 그리고 시작됐을 때의 상태가 inProgress로 바뀌는지에 대한 테스트를 작성했습니다.      
+그러나, 아직 사용자가 볼 수 있는 기능은 없습니다. 앱 상태를 변경하고 사용자에게 반영되도록 시작버튼을 연결해야 합니다.            
+또한, 우리가 지금 하고 있는 것은 TDD지요? 테스트를 먼저 작성하는 것을 뜻합니다. 따라서 StepCountControllerTests를 하나 만들어줍니다.       
+                
+### _Test target organization_
+        
+테스트 타겟에 대해 잠시 생각해보면, 당연하게도 한 파일에 테스트케이스를 계속 추가하면 찾고 유지하기가 어려워집니다. 따라서 앱 프로덕션 코드가 증가될수록 테스트코드도 그에 맞게 동일한 수준으로 체계적으로 유지해줘야 합니다. 이 책에서는 아래와 같은 구조를 사용합니다.             
 
+```swift
 
+ Test Target
+  ⌊ Cases
+  ⌊ Group 1
+      ⌊ Tests 1
+      ⌊ Tests 2
+   ⌊ Group 2
+      ⌊ Tests
+⌊ Mocks
+⌊ Helper Classes
+⌊ Helper Extensions
 
+```
+- Cases : 테스트 케이스 그룹으로 앱 코드와 병렬 구조로 구성됩니다. 이렇게하면 앱 클래스와 해당 테스트 사이를 쉽게 탐색 할 수 있습니다.      
+- Mocks : 기능 코드를 나타내는 코드로 구현과 기능을 분리 할 수 있습니다. 예를 들어 네트워크 요청은 일반적으로 Mocks처리됩니다. 나중에 이를 구축 할 것입니다.       
+- Helper classes and extensions : 테스트 코드를 더 쉽게 작성하기 위해 작성하지만 기능을 직접 테스트하거나 Mocks하지 않는 추가 코드의 경우.         
+        
+이제 테스트의 구조를 새롭게 그룹화 해줍니다. 변경된 테스트 그룹의 구조는 아래와 같습니다.
+![image](https://user-images.githubusercontent.com/60660894/92674381-27492c80-f358-11ea-8299-e4f83167e7b8.png)
+                
+### _Using @testable import_
+        
+```swift
 
+import XCTest
+@testable import FitNess
 
+class StepCountControllerTests: XCTestCase {
+  
+  var sut: StepCountController!
+  
+  override func setUp() {
+    super.setUp()
+    sut = StepCountController()
+  }
+  override func tearDown() {
+    sut = nil
+    super.tearDown()
+  }
+  
+}
 
+```
 
+1. var sut: StepCountController!
+> 이전에 배운 것과 같이 우리는 지금 StepCountController를 테스트 할 것이기 때문에 전역변수를 선언합니다.       
+> 그런데 컴파일에러가 나죠? 이유는 StepCountController가 FitNessTests와 다른 모듈에 있기 때문입니다. swift의 기본 접근제어는 internal이죠? 그래서 그런겁니다. 해결 방법은 2가지가 있습니다.       
+        
+> 1. StepCountController클래스를 public으로 지정한다.     
+이 방법을 사용하면 테스트클래스에서 사용할 수 있지만 뷰컨트롤러를 앱 외부에서 볼 수 있으므로 SOLID원칙에 위배됩니다.      
+> 2. @testable 속성을 사용한다.        
+Xcode는 데이터 유형을 일반 용도로 사용하지 않고 테스트 용으로 노출하는 방법을 제공합니다. 이 속성은 테스트에서만 사용할 수 있습니다.      
+import XCTest아래에 @testable import FitNess해줍니다.      
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
-### _Structure of XCTestCase subclass_
-### _Structure of XCTestCase subclass_
-### _Structure of XCTestCase subclass_
 ### _Structure of XCTestCase subclass_
 ### _Structure of XCTestCase subclass_
 ### _Structure of XCTestCase subclass_
