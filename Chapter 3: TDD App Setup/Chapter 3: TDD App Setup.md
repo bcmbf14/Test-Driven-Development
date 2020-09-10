@@ -18,7 +18,7 @@
       
 ### _About the FitNess app_
     
-이 책 섹션에서는 재미있는 단계 추적 앱인 FitNess를 구축합니다. FitNess는 "Loch Ness"운동을 기반으로 한 최고의 피트니스 코칭 앱입니다. 사용자는 피트니스 괴물 인 Nessie를 능가하거나, 수영하거나, 능가해야합니다. 앱의 목표는 사용자가 Nessie를 능가하도록하여 사용자의 움직임을 유도하는 것입니다. 실패하면 아바타를 먹습니다.
+이 책 섹션에서는 재미있는 단계 추적 앱인 FitNess를 구축합니다. FitNess는 "Loch Ness"운동을 기반으로 한 최고의 피트니스 코칭 앱입니다. 사용자는 피트니스 괴물 인 Nessie를 능가해야합니다. 앱의 목표는 사용자가 Nessie를 능가하도록하여 사용자의 움직임을 유도하는 것입니다. 실패하면 아바타를 먹습니다.
     
 ### _Your first test_
     
@@ -180,7 +180,97 @@ class AppModelTests: XCTestCase {
 > start()에서 appState = .inProgress를 지정해줍니다. 테스트가 통과됩니다.     
         
 ### _Test nomenclature_
-### _About the FitNess app_
+        
+1. testAppModel_whenStarted_isInInProgressState()을 예로 들어 테스트 명명법을 설명합니다.
+> 시작은 항상 test로 시작한다.       
+> test후에 오는 AppModel은 테스트할 대상을 말합니다.       
+> 구분은 _ 로 해주며 whenStarted은 말그대로 언제 테스트할지를 말합니다.        
+> isInInProgressState은 3의 whenStarted 상태가 발생한 후 테스트할 대상인 AppModel의 상태가 무엇이어야 하는지를 뜻합니다.        
+2. let sut = AppModel()
+> 테스트 중인 객체를 명시적으로 sut라는 인스턴스로 지정합니다. "system under test" 즉, 테스트 중인 시스템이라는 의미입니다. 
+3. sut.start()
+> 테스트 할 동작입니다. 이 경우엔 AppModel의 start 메소드가 호출됩니다.
+4. let observedState = sut.appState 
+> 애플리케이션 코드를 실행하는 동안 관찰 한 값을 보유하는 속성을 정의합니다.
+5. XCTAssertEqual(observedSate, AppState.inProgress)
+> 마지막 부분은 sut가 시작되었을 때 일어난 일에 대한 주장입니다. 현재 관찰하고 있는 앱의 상태가 inProgress와 같은지 비교합니다. 
+        
+
+### _Structure of XCTestCase subclass_
+        
+XCTest는 XUnit에서 파생된 테스트 프레임 워크 제품군입니다. XUnit은 SUnit에서 왔고, SUnit은 프로그래밍 언어 Smalltalk에 대한 단위 테스트 프레임 워크입니다. "X"는 프로그래밍 언어의 약자로 Java에서는 JUnit이고 Objective-C에서는 OCUnit이며 Swift는 "X"로 표현합니다.
+        
+XUnit에서 테스트는 이름이 테스트 케이스 클래스의 일부인 test로 시작하는 메소드입니다. Test Case는 Test Suite(Test Case를 실행환경에 따라 구분해 놓은 Test Case의 집합)로 그룹화됩니다. Test Runner는 Test Suite에서 Test Case를 찾고 실행하고 결과를 수집하고 표시하는 방법을 알고있는 프로그램입니다. 스키마의 테스트 단계를 실행할 때 실행되는 것은 Xcode의 Test Runner입니다.
+        
+각 테스트 케이스 클래스에는 각 테스트 메서드가 실행되기 전후에 전역 및 클래스 상태를 설정하는 데 사용되는 setUp() 및 tearDown() 메서드가 있습니다. 다른 XUnit 구현과 달리 XCTest에는 전체 테스트 클래스 또는 테스트 대상에 대해 한 번만 실행되는 lifecycle메서드가 없습니다.
+        
+이러한 방법은 미묘하지만 매우 중요한 몇 가지 문제가 있기 때문에 중요합니다.     
+- XCTestCase 하위 클래스 lifecycle는 테스트 실행 외부에서 관리되며 모든 클래스 수준 상태는 테스트 메서드간에 유지됩니다.       
+- 테스트 클래스 및 테스트 메서드가 실행되는 순서는 명시적으로 정의되지 않으며 신뢰할 수 없습니다.       
+따라서 setUp() 및 tearDown() 을 사용하여 정리하고 각 테스트 전에 상태가 알려진 위치에 있는지 확인 하는 것이 중요합니다.       
+
+### _Setting up a test, Tearing down a test_
+                
+각 테스트 메서드가 실행되기 전후에 전역 및 클래스 상태를 설정하는 데 사용되는 setUp() 및 tearDown() 메서드를 이용해서 중복을 제거해줍니다.     
+
+```swift
+
+import XCTest
+import FitNess
+
+class AppModelTests: XCTestCase {
+  
+  var sut:AppModel!
+  
+  override func setUp() {
+    sut = AppModel()
+    super.setUp()
+  }
+  
+  override func tearDown() {
+    sut = nil
+    super.tearDown()
+  }
+  
+  func testAppModel_whenInitialized_isInNotStartedState() {
+    XCTAssertEqual(sut.appState, AppState.notStarted)
+  }
+  
+  func testAppModel_whenStarted_isInInProgressState() {
+    XCTAssertEqual(sut.appState, AppState.inProgress)
+  }
+  
+  
+}
+
+```
+
+1. var sut:AppModel!        
+> 전역변수 sut를 선언해줍니다. 생성자에 대한 접근권한이 없기 때문에 !로 강제 언래핑합니다.      
+2. setUp(), tearDown()      
+> setUp(), tearDown()를 업데이트 해줍니다. 순서가 중요한데 테스트가 실행되기 전에 setUp()이 실행되므로 그전에 sut값을 넣어주고, 테스트가 완료된 직후에 tearDown이 실행되므로 메모리 초기화를 위해서 sut에 nil을 할당해줍니다.      
+> XCTestCases와 관련된 문제는 모든 테스트가 완료될 때까지 초기화되지 않는다는 것입니다. 즉, 메모리 사용량을 제어하거나 파일 시스템을 정리하거나 발견 된 방식으로 되돌리려면 이처럼 테스트를 실행 한 후 테스트 상태를 정리하는 것이 중요합니다.      
+3. testAppModel_whenInitialized_isInNotStartedState(), testAppModel_whenStarted_isInInProgressState()
+> 테스트 메소드를 리팩토링 해줍니다. 코드가 각 한줄로 보기좋아졌습니다. 
+
+
+
+
+
+
+
+
+### _Structure of XCTestCase subclass_
+### _Structure of XCTestCase subclass_
+### _Structure of XCTestCase subclass_
+### _Structure of XCTestCase subclass_
+### _Structure of XCTestCase subclass_
+### _Structure of XCTestCase subclass_
+### _Structure of XCTestCase subclass_
+### _Structure of XCTestCase subclass_
+### _Structure of XCTestCase subclass_
+
+
 
 
 
