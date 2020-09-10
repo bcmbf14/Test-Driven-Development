@@ -184,9 +184,9 @@ class AppModel {
 8. AppModelTests.swift에 아래 코드를 추가합니다.       
 ```swift
 
-func givenGoalSet() {
-  sut.dataModel.goal = 1000 
-}
+  func givenGoalSet() {
+    sut.dataModel.goal = 1000 
+  }
 
 ```
 9. 다시 AppModelTests로 돌아와서 아래 테스트를 추가합니다. 이미 로직이 추가되어 있으므로 통과합니다.     
@@ -203,11 +203,14 @@ func givenGoalSet() {
 10. 이 코드 변경으로 인해 실패하기 시작한 다른 모든 테스트를 수정할 때입니다. testAppModel_whenStarted_isInInProgressState에서 맨위에 // given givenGoalSet()을 추가해주세요.      
 11. StepCountControllerTests로 가서 testController_whenStartTapped_appIsInProgress과 testController_whenStartTapped_buttonLabelIsPause에도 같은 메소드를 추가해줍니다.        
 12. 모두 통과합니다.
+13. 앱을 빌드하고 실행해보면 Start버튼을 눌렀을 때, 처음과는 다르게 정상적으로 얼랏창이 뜨는 것을 확인할 수 있습니다. 
+        
+### _View controller testing_
+        
 
 
 
 
-### _Assert methods_
 ### _Assert methods_
 ### _Assert methods_
 ### _Assert methods_
