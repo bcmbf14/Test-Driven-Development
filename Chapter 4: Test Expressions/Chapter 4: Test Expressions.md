@@ -233,12 +233,22 @@ class AppModel {
   }
   
 ```
-1. 이 테스트는 데이터 모델이 골이 업데이트 됐을 때, 잘 업데이트 되는지 확인합니다.
-2. StepCountControllerTests.swift에서 testDataModel_whenGoalUpdate_updatesToNewGoal()를 추가합니다. 
-3. tearDown에서 AppModel.instance.dataModel.goal = nil를 추가합니다.
-4. StepCountController의 updateGoal메소드에서 AppModel.instance.dataModel.goal = newGoal를 구현합니다. 
+1. 이 테스트는 데이터 모델이 골이 업데이트 됐을 때, 잘 업데이트 되는지 확인합니다.       
+2. StepCountControllerTests.swift에서 testDataModel_whenGoalUpdate_updatesToNewGoal()를 추가합니다. 실패합니다.      
+3. tearDown에서 AppModel.instance.dataModel.goal = nil를 추가합니다.        
+4. 실패합니다. updateGoal메소드가 구현되지 않았습니다.        
+5. StepCountController의 updateGoal메소드에서 AppModel.instance.dataModel.goal = newGoal를 구현합니다.      
+6. 통과합니다.       
+        
+### _Using the host app_
+        
+앱에 대한 다음 요구 사항은 센트럴 뷰가 실행 중인 위치에있는 사용자의 아바타를 표시해야한다는 것입니다.      
+
+
+
 
  
+### _Fixing the tests_
 
 
 
@@ -247,8 +257,6 @@ class AppModel {
 
 
 
-### _Assert methods_
-### _Assert methods_
 ### _Assert methods_
 ### _Assert methods_
 ### _Assert methods_
