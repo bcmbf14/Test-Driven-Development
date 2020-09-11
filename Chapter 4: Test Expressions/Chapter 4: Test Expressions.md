@@ -437,20 +437,167 @@ extension RootViewController {
                 
 > 목표는 가능한 한 100%에 근접하는 것이어야합니다. 커버리지는 코드가 작동한다는 것을 의미하지는 않지만 커버리지가 부족하다는 것은 테스트되지 않았음을 의미합니다. 뷰 및 뷰 컨트롤러의 경우 TDD에 UI 테스트가 포함되어 있지 않기 때문에 100% 적용되지 않을 것으로 예상됩니다. 단위 테스트와 UI 자동화 테스트를 결합하면 이러한 파일 전부는 아니더라도 대부분을 다룰 수 있습니다.        
         
-### _Assert methods_
-### _Assert methods_
-### _Assert methods_
-### _Assert methods_
-### _Assert methods_
+### _Debugging tests_
+        
+테스트 디버깅에 관해서는 이미 한 번 연습했습니다. 즉, "내가 옳은 것을 테스트하고 있는가?"
+다음 사항을 확인하십시오.      
+        
+- 주어진 진술 에 올바른 가정이 있습니다.
+- 당신의 다음 문은 정확하게 원하는 동작을 반영한다.
+        
+테스트 코드에 분명한 것이 없으면 다음으로 유지 된 상태에 대한 테스트 실행 순서를 확인합니다. 또한 코드 커버리지를 사용하여 올바른 코드 경로를 선택했는지 확인하십시오. 이를 시도한 후 Xcode에서 다른 도구를 사용할 수 있습니다. 그들을 시험해보기 위해 앱에서 다른 중요한 배우 인 Nessie에 대해 생각할 때입니다.       
+        
+### _Using test breakpoints_
+        
+그림에서 Nessie를 사용하면 데이터 모델이 조금 더 복잡해집니다. Nessie의 새로운 규칙은 다음과 같습니다.        
+        
+- Nessie의 거리가 사용자의 거리보다 크거나 같으면 Nessie가 승리합니다 (사용자가 잡힙니다). 거리가 시작 조건인 0일 때는 사용자를 잡을 수 없습니다.      
+- 사용자가 Nessie에 잡히면 목표에 도달 할 수 없습니다.     
+        
+```swift
 
+func testModel_whenStarted_userIsNotCaught() {
+  XCTAssertFalse(sut.caught)
+}
+
+```
+
+```swift
+
+class DataModel{
+ 
+  var goalReached: Bool {
+    if let goal = goal,
+      steps >= goal {
+      return true
+    }
+    return false
+  }
+  var goal: Int?
+  var steps: Int = 0
+  
+  let nessie = Nessie()
+  var distance: Double = 0
+  var caught: Bool {
+    return nessie.distance >= distance
+  }
+  
+}
+
+```
+
+1. testModel_whenStarted_userIsNotCaught()
+> 새로운 DataModel로 사용자가 잡히지 않는지 테스트합니다. 역시나 실패합니다.        
+2. DataModel.swift에서 코드를 변경해줍니다.                  
+> 이렇게 하면 데이터 모델에 Nessie, 사용자 거리를 추적하는 변수, 거리를 비교하기 위한 계산된 변수가 추가됩니다. 나중에 계산을 더 깔끔하게 유지하기 위해 단계 대신 거리에 대한 별도의 변수가 사용됩니다.
+        
+업데이트 된 코드를 사용해도 테스트는 여전히 실패합니다. 문제를 진단하는 방법에는 여러 가지가 있습니다. 이미 보셨듯이 확인해야 할 몇 가지 사항이 있습니다.        
+        
+• 테스트 자체가 정확합니다. 주어진 것은 startUp()에서 생성된 새로운 데이터 모델입니다. 그때도 정확하고, 잡힌 것은 거짓이어야합니다.        
+• 코드 커버리지에 표시된대로 DataModel코드가 실행되었습니다.      
+        
+좋은 다음 단계는 디버거를 사용해 보는 것입니다. Xcode 좌측 메뉴에서 BreakPoint Navigator를 클릭합니다. 그리고 좌측 맨 아래에서 +를 클릭하고 Test Failure Breakpoint를 선택합니다. 이렇게하면 단위 테스트가 실패하면 실행을 중지하는 BreakPoint가 생성됩니다. 테스트를 다시 실행하면 디버거가 테스트 실패시 중지됩니다.
+![image](https://user-images.githubusercontent.com/60660894/92827019-54571700-f40c-11ea-9139-39fd0d4ea61b.png)      
+![image](https://user-images.githubusercontent.com/60660894/92827597-00006700-f40d-11ea-83ae-1d2d21f17914.png)      
+> 콘솔 옆의 breakpoint에서 sut를 확장합니다. 그래서 보면 여기에서 거리와 걸음수가 모두 0임을 알 수 있습니다. 따라서 앱 로직은 옳은 일을하고 있고, Nessie는 사용자와 연결되어 있습니다. 그러나 이것은 시작 조건이 캡처로 이어질 수 없는 특별한 경우입니다. 
+        
+이것을 해결하려면 DataModel.swift에서 caught를 아래처럼 바꿔줍니다. 이제 통과합니다.
+```swift
+
+  var caught: Bool {
+//    return nessie.distance >= distance
+    return distance > 0 && nessie.distance >= distance
+  }
+  
+```
+        
+### _Completing coverage_
+        
+DataModel.swift의 코드 커버리지를 살펴보면 더 이상 100%가 아닙니다. 스트라이프 위로 마우스를 가져 가면 distance > 0 조건만 확인되었음을 표시합니다. 이것은 테스트 할 조건이 더 있음을 나타냅니다.       
+![image](https://user-images.githubusercontent.com/60660894/92828026-89b03480-f40d-11ea-9e95-8fd598d7c3ca.png)      
+```swift
+
+  func testModel_whenUserAheadOfNessie_isNotCaught() {
+    // given
+    sut.distance = 1000
+    sut.nessie.distance = 100
+    // then
+    XCTAssertFalse(sut.caught)
+  }
+  
+  func testModel_whenNessieAheadofUser_isCaught() {
+    // given
+    sut.nessie.distance = 1000
+    sut.distance = 100
+    // then
+    XCTAssertTrue(sut.caught)
+  }
+  
+```
+ 1. nessie.distance >= distance 조건을 충족하기 위해서 테스트를 두개 추가합니다.     
+ 2. 코드커버리지가 100%가 되었습니다.        
+        
+### _Finishing out the requirements_
+        
+아직 설명되지 않은 마지막 부분이 하나 있습니다. 사용자가 잡히면 목표에 도달할 수 없습니다. 테스트를 추가합니다.        
+        
+```swift
+
+  // MARK: - Goal
+  func testGoal_whenUserCaught_cannotBeReached() {
+    //given goal should be reached
+    sut.goal = 1000
+    sut.steps = 1000
+
+    // when caught by nessie
+    sut.distance = 100
+    sut.nessie.distance = 100
+
+    // then
+    XCTAssertFalse(sut.goalReached)
+  }
+  
+```
+
+```swift
+
+  var goalReached: Bool {
+    if let goal = goal,
+      steps >= goal, !caught {
+        return true
+    }
+    return false
+  }
+
+```
+1. DataModelTests.swift에서 testGoal_whenUserCaught_cannotBeReached를 추가해줍니다.      
+2. DataModel에서 goalReached를 변경해줍니다. 이제 통과합니다.       
+                
+### _Challenge_
+        
+StepCountControllerTests.tearDown()에는 AppModel과 DataModel을 재설정하는 별도의 호출이 있습니다.      
+        
+1. 데이터 모델은 앱 모델의 속성이므로 적절한 테스트와 함께 데이터 모델 재설정을 AppModel.restart()로 리팩터링합니다.     
+추가 챌린지의 경우 XCTAssertNil 또는 XCTAssertLessThanOrEqual과 같이 아직 사용되지 않은 다른 XCTAssert 함수를 사용하십시오.     
+        
+2. 두 번째 과제는 앱에 일시 중지 기능을 추가하여 사용자가 .paused와 .inProgress간에 앞뒤로 이동할 수 있도록하는 것입니다.     
+직접적인 기능은 이후에 다룰 것이기 때문에 일시중지는 이 시점에서 다른 작업을 수행 할 필요가 없습니다.      
         
 
 
+### _Key points_
+        
+- 테스트 메서드를 사용하려면 XCTAssert 함수를 호출해야 합니다.        
+- 뷰 컨트롤러 로직은 데이터 / 상태 기능으로 분리될 수 있으며, 단위 테스트가 가능하고 설정 및 응답 기능을 볼 수 있으며 UI 자동화에 의해 테스트되어야합니다.        
+- 테스트 실행 순서가 중요합니다.     
+- 코드 커버리지 보고서를 사용하여 모든 분기에 최소 수준의 테스트가 있는지 확인할 수 있습니다.      
+- 테스트 실패 중단점은 테스트 수정을 위한 일반 디버깅 도구 위에 있는 도구입니다.             
+        
+### _Where to go from here?_
+        
+코드 커버리지에 대한 자세한 내용은 이 video tutorial에서 해당 주제를 다룹니다. 또한 Advanced Apple Debugging and Reverse Engineering 책에서 디버깅에 대한 모든 것을 배울 수 있습니다. 이 책에서 배운 도구와 기술은 애플리케이션 코드와 마찬가지로 테스트 코드에 적용 할 수 있습니다.     
 
-
-
-
-
+다음 장에서는 XCTestExpectation을 사용하여 비동기 함수를 테스트하는 방법을 배웁니다.     
 # 
 # 
 # 
