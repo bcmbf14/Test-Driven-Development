@@ -496,7 +496,7 @@ class DataModel{
 • 테스트 자체가 정확합니다. 주어진 것은 startUp()에서 생성된 새로운 데이터 모델입니다. 그때도 정확하고, 잡힌 것은 거짓이어야합니다.        
 • 코드 커버리지에 표시된대로 DataModel코드가 실행되었습니다.      
         
-좋은 다음 단계는 디버거를 사용해 보는 것입니다. Xcode 좌측 메뉴에서 BreakPoint Navigator를 클릭합니다. 그리고 좌측 맨 아래에서 +를 클릭하고 Test Failure Breakpoint를 선택합니다. 이렇게하면 단위 테스트가 실패하면 실행을 중지하는 BreakPoint가 생성됩니다. 테스트를 다시 실행하면 디버거가 테스트 실패시 중지됩니다.
+좋은 다음 단계는 디버거를 사용해 보는 것입니다. Xcode 좌측 메뉴에서 BreakPoint Navigator를 클릭합니다. 그리고 좌측 맨 아래에서 +를 클릭하고 Test Failure Breakpoint를 선택합니다. 이렇게하면 단위 테스트가 실패하면 실행을 중지하는 BreakPoint가 생성됩니다. 테스트를 다시 실행하면 디버거가 테스트 실패시 중지됩니다.                
 ![image](https://user-images.githubusercontent.com/60660894/92827019-54571700-f40c-11ea-9139-39fd0d4ea61b.png)      
 ![image](https://user-images.githubusercontent.com/60660894/92827597-00006700-f40d-11ea-83ae-1d2d21f17914.png)      
 > 콘솔 옆의 breakpoint에서 sut를 확장합니다. 그래서 보면 여기에서 거리와 걸음수가 모두 0임을 알 수 있습니다. 따라서 앱 로직은 옳은 일을하고 있고, Nessie는 사용자와 연결되어 있습니다. 그러나 이것은 시작 조건이 캡처로 이어질 수 없는 특별한 경우입니다. 
