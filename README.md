@@ -43,8 +43,6 @@
 
 ## ContactMe
 * bcmbf14@gmail.com
-* https://bcmbf14.tistory.com/
-
    
     
    
